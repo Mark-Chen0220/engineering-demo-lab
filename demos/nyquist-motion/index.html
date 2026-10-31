@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Nyquist Motion Lab — A different way to see motion</title>
+<style>
+:root{--bg:#101715;--panel:#19221e;--line:#334039;--text:#eff3e9;--muted:#a9b6ac;--lime:#d7f57a;--orange:#ffb47f;--mint:#8fd4be}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button,select{cursor:pointer}button{color:var(--text);background:transparent;border:1px solid var(--line);border-radius:7px;padding:9px 13px;transition:background .15s,border-color .15s}button:hover{background:#2b372f;border-color:#879b7d}button:focus-visible,input:focus-visible,select:focus-visible,canvas:focus-visible{outline:2px solid var(--lime);outline-offset:4px}button.active,button[aria-pressed=true]{background:var(--lime);color:#1e2b18;border-color:var(--lime)}button.primary{background:var(--lime);color:#182514;border-color:var(--lime)}button:disabled{opacity:.45;cursor:default}select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:7px}input[type=range]{width:100%;accent-color:var(--lime);cursor:pointer;margin:8px 0 0}input[type=checkbox]{accent-color:var(--lime)}
+.app{max-width:1680px;margin:auto;padding:26px 34px 22px}.topline{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:17px;gap:12px}.brand{font-size:12px;letter-spacing:.15em;font-weight:700;display:flex;align-items:center;gap:10px}.mark{display:inline-flex;gap:3px;align-items:center;height:21px}.mark i{display:block;width:3px;background:var(--lime)}.mark i:nth-child(1){height:8px}.mark i:nth-child(2){height:19px}.mark i:nth-child(3){height:13px}.eyebrow,.edition{color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase}.edition{letter-spacing:.06em}.intro{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:24px 0 22px}.intro h1{font-size:clamp(28px,3vw,43px);letter-spacing:-.045em;line-height:1.08;margin:7px 0 10px;font-weight:600}.intro p{margin:0;color:var(--muted);max-width:680px;font-size:14px}.status{display:flex;align-items:center;gap:8px;white-space:nowrap;background:#283324;border:1px solid #4b5d36;color:var(--lime);padding:8px 12px;border-radius:30px;font-size:12px}.status[data-tone=warning]{background:#3c2c23;border-color:#775339;color:var(--orange)}.status[data-tone=boundary]{background:#393623;border-color:#756e3e;color:#f2df8b}.status b{width:6px;height:6px;border-radius:50%;background:currentColor}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) 300px;border:1px solid var(--line);border-radius:12px;overflow:hidden}.main{min-width:0}.scene-wrap{height:470px;position:relative;isolation:isolate;background:#dce5d9;overflow:hidden}.scene{display:block;width:100%;height:100%;touch-action:none;cursor:grab}.scene:active{cursor:grabbing}.scene-labels{position:absolute;top:17px;left:19px;right:19px;display:grid;grid-template-columns:1fr 1fr;gap:36px;pointer-events:none}.scene-label{display:flex;align-items:center;gap:7px;color:#223a2d;font-size:10px;font-weight:750;letter-spacing:.08em}.scene-label:nth-child(2){padding-left:6px}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#317c62}.dot.orange{background:#d98242}.scene-divider{position:absolute;top:0;bottom:0;left:50%;border-left:1px solid #718c7955;pointer-events:none}.scene-stamps{position:absolute;bottom:52px;left:20px;right:20px;display:grid;grid-template-columns:1fr 1fr;gap:35px;pointer-events:none;color:#38513e;font:11px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace}.scene-stamps span:nth-child(2){padding-left:6px}.scene-toolbar{position:absolute;bottom:12px;left:12px;right:12px;display:flex;justify-content:space-between;gap:7px;align-items:center;flex-wrap:wrap}.view-buttons{display:flex;gap:4px}.scene-toolbar button{font-size:11px;padding:6px 9px;background:#eff4e6e8;color:#2c3f2c;border-color:#b4c1ac}.scene-toolbar button.active{background:#233d2f;color:#f3f9ec;border-color:#233d2f}.gesture{font-size:10px;color:#3a4f40;background:#edf3e3dd;padding:5px 8px;border-radius:4px}.scene-error{position:absolute;inset:0;background:#dce5d9;color:#203729;padding:70px 30px;z-index:4}.scene-error[hidden]{display:none}
+.transport{display:flex;align-items:center;gap:9px;padding:13px 18px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);flex-wrap:wrap}.transport button{padding:6px 12px;font-size:12px}.time{font:12px ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--muted);margin-right:auto;min-width:85px}.speed{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted)}.speed select{font-size:11px;padding:4px 6px}.chart-section{padding:17px 19px 12px}.chart-header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}.chart-title{font-size:12px;font-weight:600;margin:0}.legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:10px}.key{display:inline-block;width:14px;height:2px;background:var(--mint);vertical-align:middle;margin-right:5px}.key.alias{background:var(--orange)}.key.sample{width:5px;height:5px;border-radius:50%;background:var(--text)}.chart{width:100%;height:162px;display:block}.chart-caption{font-size:10px;color:var(--muted);margin:0;min-height:15px}
+.sidebar{background:var(--panel);border-left:1px solid var(--line);padding:21px 22px;display:flex;flex-direction:column;gap:22px}.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.section-head h2{font-size:12px;margin:0;font-weight:600}.smalltag{font:10px ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--muted)}.control+.control{margin-top:19px}.control-label{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font-size:12px}.control-label output{font:15px ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--lime)}.range-limits{display:flex;justify-content:space-between;color:var(--muted);font-size:10px}.presets{display:grid;grid-template-columns:1fr 1fr;gap:7px}.presets button{font-size:11px;padding:8px 5px}.metrics{display:grid;grid-template-columns:1fr 1fr;gap:13px 9px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:16px 0}.metric label{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}.metric strong{font:20px ui-monospace,SFMono-Regular,Consolas,monospace;font-weight:500;letter-spacing:-.04em}.metric strong small{font-size:11px;color:var(--muted)}.metric.wide{grid-column:1/-1}.direction{color:var(--orange)}.explanation h3{font-size:13px;margin:0 0 6px}.explanation p{font-size:11px;color:var(--muted);margin:0;line-height:1.7}.formula{font:12px ui-monospace,SFMono-Regular,Consolas,monospace;padding:11px 0 0;color:var(--lime)}.toggles{display:flex;flex-wrap:wrap;gap:12px}.toggles label{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:11px}.footer{display:flex;justify-content:space-between;gap:20px;color:var(--muted);font-size:10px;margin-top:16px}.footer p{margin:0;max-width:980px}.footer .index{color:var(--lime);white-space:nowrap;letter-spacing:.1em}.sr-only{position:absolute;clip:rect(0,0,0,0);width:1px;height:1px;overflow:hidden}
+.scene-wrap.compact{height:620px}.scene-wrap.compact .scene-labels{top:12px;bottom:0;display:block}.scene-wrap.compact .scene-label{font-size:10px}.scene-wrap.compact .scene-label:nth-child(2){position:absolute;top:50%;padding-left:0;transform:translateY(-6px)}.scene-wrap.compact .scene-divider{top:50%;left:0;right:0;bottom:auto;border-left:0;border-top:1px solid #718c7955}.scene-wrap.compact .scene-stamps{inset:0;display:block}.scene-wrap.compact .scene-stamps span{position:absolute;left:12px;bottom:calc(50% + 11px);padding:0;font-size:10px}.scene-wrap.compact .scene-stamps span:nth-child(2){bottom:53px}.scene-wrap.compact .gesture{display:none}
+@media(min-width:1500px){.scene-wrap{height:550px}}@media(max-width:1100px){.app{padding:20px}.workspace{grid-template-columns:minmax(0,1fr) 265px}.sidebar{padding:18px 17px;gap:18px}.scene-wrap{height:430px}.gesture{display:none}.scene-labels{gap:16px;left:12px;right:12px}.scene-label{font-size:9px;letter-spacing:.02em}.scene-stamps{left:12px;font-size:10px;gap:16px}}@media(max-width:820px){.workspace{grid-template-columns:1fr}.sidebar{border-left:0;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:22px}.sidebar .explanation{grid-column:1/-1}.sidebar .toggles{grid-column:1/-1}.scene-wrap{height:410px}.intro{align-items:flex-start}.status{font-size:10px;padding:7px 9px}.chart{height:170px}.gesture{display:block}}@media(max-width:500px){.app{padding:14px 10px}.edition{display:none}.intro{display:block;padding:21px 3px}.intro p{font-size:12px}.intro .status{display:inline-flex;margin-top:14px}.scene-wrap{height:360px}.scene-labels{top:12px;gap:8px}.scene-label{font-size:8px;letter-spacing:0}.scene-label:nth-child(2){padding-left:8px}.scene-stamps{bottom:59px;gap:6px;font-size:9px}.scene-stamps span:nth-child(2){padding-left:9px}.gesture{display:none}.scene-toolbar{bottom:11px;left:8px;right:8px}.scene-toolbar button{font-size:10px;padding:6px}.transport{padding:12px 10px;gap:7px}.transport button{padding:6px 8px}.transport .time{font-size:10px;min-width:69px}.speed{font-size:10px}.chart-section{padding:14px 10px 10px}.legend{gap:9px;font-size:9px}.sidebar{padding:18px 16px;grid-template-columns:1fr;gap:20px}.sidebar .explanation,.sidebar .toggles{grid-column:auto}.footer{display:block;padding:0 3px}.footer .index{display:block;margin-top:9px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topline"><div class="brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span> MOTION / LAB</div><div class="edition">Interactive field notes &nbsp; / &nbsp; No. 001</div></header>
+  <section class="intro"><div><div class="eyebrow">Signal processing, made visible</div><h1>When motion tells a different story.</h1><p>A runner. A propeller. One camera. Discover how sampling can make forward motion look backward.</p></div><div id="status" class="status" data-tone="warning" role="status"><b aria-hidden="true"></b><span id="statusText">Aliasing · backward motion</span></div></section>
+  <div class="workspace">
+    <main class="main">
+      <div class="scene-wrap" id="sceneWrap">
+        <canvas class="scene" id="scene" tabindex="0" aria-label="Interactive 3D stadium. Left: continuous runner and propeller. Right: the same scene at camera sample times. Drag to orbit; Shift-drag to pan; scroll to zoom. Arrow keys rotate; plus and minus zoom; Home resets the camera.">Your browser needs WebGL to display the stadium.</canvas>
+        <div class="scene-labels" aria-hidden="true"><div class="scene-label"><i class="dot"></i> CONTINUOUS MOTION</div><div class="scene-label"><i class="dot orange"></i> SAMPLED CAMERA VIEW</div></div>
+        <div class="scene-divider"></div>
+        <div class="scene-stamps" aria-hidden="true"><span id="realStamp">t = 0.00 s</span><span id="sampleStamp">sample #0 · t = 0.00 s</span></div>
+        <div class="scene-toolbar"><div class="view-buttons" role="group" aria-label="Camera presets"><button type="button" data-view="stadium" class="active" aria-pressed="true">Stadium</button><button type="button" data-view="overhead" aria-pressed="false">Top view</button><button type="button" data-view="propeller" aria-pressed="false">Propeller</button></div><span class="gesture">Drag to orbit · Scroll to zoom</span><button type="button" id="fullscreen">Full screen</button></div>
+        <div class="scene-error" id="sceneError" role="alert" hidden><h2>WebGL is unavailable</h2><p>Enable hardware acceleration or open this file in a browser with WebGL support. The sampling controls and chart still work.</p></div>
+      </div>
+      <div class="transport"><button type="button" class="primary" id="play" aria-label="Pause animation">Ⅱ Pause</button><button type="button" id="reset">Reset</button><button type="button" id="step" title="Pause and advance exactly one sampling interval">Step sample</button><span class="time" id="time">00.00 s</span><label class="speed">Playback <select id="speed" aria-label="Playback speed"><option value="0.1">0.1×</option><option value="0.25" selected>0.25×</option><option value="0.5">0.5×</option><option value="1">1×</option></select></label></div>
+      <section class="chart-section" aria-labelledby="chartTitle"><div class="chart-header"><h2 class="chart-title" id="chartTitle">The signal behind the motion</h2><div class="legend" aria-hidden="true"><span><i class="key"></i>Actual</span><span><i class="key alias"></i>Alias</span><span><i class="key sample"></i>Samples</span></div></div><canvas id="chart" class="chart" role="img" aria-label="Unitless sine of rotation phase versus simulation time in seconds. The actual signal and apparent alias pass through the same white sample points."></canvas><p class="chart-caption" id="chartCaption">A marked full turn and a full lap each repeat at f. White dots are the camera measurements.</p></section>
+    </main>
+    <aside class="sidebar" aria-label="Sampling controls">
+      <section><div class="section-head"><h2>Set the experiment</h2><span class="smalltag">01 / INPUT</span></div><div class="control"><div class="control-label"><label for="frequency">Motion frequency, f</label><output id="frequencyOut" for="frequency">0.60 Hz</output></div><input id="frequency" type="range" min="0.1" max="3" step="0.05" value="0.6"><div class="range-limits"><span>0.10 Hz</span><span>3.00 Hz</span></div></div><div class="control"><div class="control-label"><label for="sampling">Sampling rate, fₛ</label><output id="samplingOut" for="sampling">0.90 Hz</output></div><input id="sampling" type="range" min="0.2" max="12" step="0.05" value="0.9"><div class="range-limits"><span>0.20 Hz</span><span>12.00 Hz</span></div></div></section>
+      <section><div class="section-head"><h2>Try a different story</h2><span class="smalltag">02 / PRESETS</span></div><div class="presets" role="group" aria-label="Experiment presets"><button type="button" data-preset="clear" aria-pressed="false">Clear motion</button><button type="button" data-preset="backward" aria-pressed="true">Backward</button><button type="button" data-preset="frozen" aria-pressed="false">Frozen</button><button type="button" data-preset="boundary" aria-pressed="false">Nyquist limit</button></div></section>
+      <section class="metrics" aria-label="Calculated sampling results"><div class="metric"><label>Nyquist frequency, fₛ / 2</label><strong id="nyquist">0.45 <small>Hz</small></strong></div><div class="metric"><label>Samples per full turn</label><strong id="samplesPer">1.50</strong></div><div class="metric wide"><label>Apparent signed frequency</label><strong class="direction" id="alias">−0.30 <small>Hz · backward</small></strong></div></section>
+      <section class="explanation"><h3 id="explainTitle">The camera misses a step.</h3><p id="explainText">Between frames the runner and marked blade advance more than half a cycle. The shorter path between samples points backward, even though the actual motion stays forward.</p><div class="formula">fₛ &gt; 2f &nbsp; → &nbsp; resolve this cycle</div></section>
+      <div class="toggles"><label><input type="checkbox" id="shadows" checked> Shadows</label><label><input type="checkbox" id="guides" checked> Phase guides</label></div>
+    </aside>
+  </div>
+  <footer class="footer"><p>One full lap = one marked propeller revolution. The sampled view holds each captured pose; it does not interpolate. The chart shows the fundamental sin(2πft). Body motion contains harmonics, so resolving the entire runner needs faster sampling. Different blade colors distinguish a full turn; identical blades would introduce extra symmetry.</p><span class="index">EXPLORE / OBSERVE / UNDERSTAND</span></footer>
+  <p class="sr-only" id="announcement" aria-live="polite"></p>
+</div>
+<script>
+/* Everything is local: a compact WebGL renderer, procedural meshes, and a 2D plot.
+   Frequencies use simulation seconds. Playback scales wall time, not f or fs. */
+(() => {
+'use strict';
+const $=id=>document.getElementById(id), TAU=2*Math.PI;
+const state={frequency:.6,sampling:.9,time:0,playing:!matchMedia('(prefers-reduced-motion: reduce)').matches,speed:.25,shadows:true,guides:true,view:'stadium'};
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+function aliasFrequency(f,fs){const a=f-fs*Math.floor(f/fs+.5);return Math.abs(a)<1e-9?0:a;}
+function boundary(){return Math.abs(state.sampling-2*state.frequency)<1e-7;}
+function signed(n){return (n<0?'−':n>0?'+':'')+Math.abs(n).toFixed(2);}
+function sampleIndex(){return Math.floor(state.time*state.sampling+1e-8);}
+function updateUI(announce=false){
+  const f=state.frequency,fs=state.sampling,a=aliasFrequency(f,fs),edge=boundary(),halfTurn=Math.abs(Math.abs(a)-fs/2)<1e-7;
+  $('frequencyOut').value=f.toFixed(2)+' Hz';$('samplingOut').value=fs.toFixed(2)+' Hz';
+  $('nyquist').innerHTML=(fs/2).toFixed(2)+' <small>Hz</small>';$('samplesPer').textContent=(fs/f).toFixed(2);
+  const direction=halfTurn?'direction ambiguous':Math.abs(a)<1e-7?'stationary':a<0?'backward':'forward';
+  $('alias').innerHTML=(halfTurn?'±'+Math.abs(a).toFixed(2):signed(a))+' <small>Hz · '+direction+'</small>';
+  let title,text,status,tone;
+  if(halfTurn){status=edge?'At Nyquist · ambiguous':'Aliasing · half-turn ambiguity';tone='boundary';title=edge?'Two samples are the boundary.':'Half a turn leaves two directions.';text='The captured phases differ by exactly half a turn. Clockwise and counterclockwise fit equally well. With this starting phase, every sine sample is zero: amplitude and phase are ambiguous. Use more than 2f for reliable recovery.';}
+  else if(fs>2*f){status='Above 2f · cycle resolved';tone='clear';title='Enough frames to follow the cycle.';text='The camera captures more than two samples per lap and full revolution. The fundamental has a unique frequency inside the Nyquist band. The held camera view can still look choppy; faster sampling makes it smoother.';}
+  else if(a===0){status='Aliasing · motion looks frozen';tone='warning';title='A full turn slips between frames.';text='Every exposure catches the same phase. The runner keeps completing laps and the propeller keeps spinning, but the camera sees the same position. Zero apparent frequency does not mean zero real motion.';}
+  else if(a<0){status='Aliasing · backward motion';tone='warning';title='The camera misses a step.';text='Between frames the runner and marked blade advance more than half a cycle (or skip whole cycles). The shortest phase step between samples points backward, although the actual motion stays forward.';}
+  else{status='Aliasing · slower forward motion';tone='warning';title='Whole cycles disappear between frames.';text='The camera skips enough motion that the samples fit a slower forward cycle. The apparent motion is plausible, but it has the wrong frequency. Raise the sampling rate above twice the actual frequency.';}
+  $('statusText').textContent=status;$('status').dataset.tone=tone;$('explainTitle').textContent=title;$('explainText').textContent=text;
+  $('play').textContent=state.playing?'Ⅱ Pause':'▶ Play';$('play').setAttribute('aria-label',state.playing?'Pause animation':'Play animation');
+  $('chartCaption').textContent=halfTurn?'At this starting phase the half-turn samples are all zero; both directions and many amplitudes fit.':'A marked full turn and a full lap each repeat at f. White dots are the camera measurements.';
+  if(announce)$('announcement').textContent=status+'. '+f.toFixed(2)+' hertz motion; '+fs.toFixed(2)+' samples per second.';
+}
+for(const id of ['frequency','sampling'])$(id).addEventListener('input',e=>{state[id]=Number(e.target.value);state.time=0;document.querySelectorAll('[data-preset]').forEach(b=>b.setAttribute('aria-pressed','false'));updateUI(true);});
+const presets={clear:[.6,6],backward:[.6,.9],frozen:[.6,.6],boundary:[.6,1.2]};
+document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{[state.frequency,state.sampling]=presets[b.dataset.preset];$('frequency').value=state.frequency;$('sampling').value=state.sampling;state.time=0;document.querySelectorAll('[data-preset]').forEach(p=>p.setAttribute('aria-pressed',String(p===b)));updateUI(true);}));
+$('play').addEventListener('click',()=>{state.playing=!state.playing;updateUI();});
+$('reset').addEventListener('click',()=>{state.time=0;updateUI();});
+$('step').addEventListener('click',()=>{state.playing=false;state.time=(sampleIndex()+1)/state.sampling;updateUI();});
+$('speed').addEventListener('change',e=>{state.speed=Number(e.target.value);});
+$('shadows').addEventListener('change',e=>state.shadows=e.target.checked);
+$('guides').addEventListener('change',e=>state.guides=e.target.checked);
+$('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('sceneWrap').requestFullscreen();}catch(e){$('announcement').textContent='Full screen is unavailable in this browser. You can still use all camera controls.';}});
+document.addEventListener('fullscreenchange',()=>{$('fullscreen').textContent=document.fullscreenElement?'Exit full screen':'Full screen';});
+if(!$('sceneWrap').requestFullscreen)$('fullscreen').hidden=true;
+
+// Column-major transforms and a right-handed, Y-up world.
+const M={
+  identity:()=>new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]),
+  mul:(a,b)=>{let o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++)for(let k=0;k<4;k++)o[c*4+r]+=a[k*4+r]*b[c*4+k];return o;},
+  translate:(x,y,z)=>{let m=M.identity();m[12]=x;m[13]=y;m[14]=z;return m;},
+  scale:(x,y,z)=>new Float32Array([x,0,0,0,0,y,0,0,0,0,z,0,0,0,0,1]),
+  rx:a=>new Float32Array([1,0,0,0,0,Math.cos(a),Math.sin(a),0,0,-Math.sin(a),Math.cos(a),0,0,0,0,1]),
+  ry:a=>new Float32Array([Math.cos(a),0,-Math.sin(a),0,0,1,0,0,Math.sin(a),0,Math.cos(a),0,0,0,0,1]),
+  rz:a=>new Float32Array([Math.cos(a),Math.sin(a),0,0,-Math.sin(a),Math.cos(a),0,0,0,0,1,0,0,0,0,1]),
+  perspective:(f,a,n,z)=>{let t=1/Math.tan(f/2);return new Float32Array([t/a,0,0,0,0,t,0,0,0,0,(z+n)/(n-z),-1,0,0,2*z*n/(n-z),0]);},
+  ortho:(l,r,b,t,n,f)=>new Float32Array([2/(r-l),0,0,0,0,2/(t-b),0,0,0,0,-2/(f-n),0,-(r+l)/(r-l),-(t+b)/(t-b),-(f+n)/(f-n),1]),
+  lookAt:(eye,target)=>{let z=norm(sub(eye,target)),x=norm(cross([0,1,0],z)),y=cross(z,x);return new Float32Array([x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-dot(x,eye),-dot(y,eye),-dot(z,eye),1]);}
+};
+function sub(a,b){return a.map((v,i)=>v-b[i]);}function dot(a,b){return a.reduce((s,v,i)=>s+v*b[i],0);}function cross(a,b){return[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];}function norm(a){let n=Math.hypot(...a)||1;return a.map(v=>v/n);}
+function transform(m,p,w=1){return [m[0]*p[0]+m[4]*p[1]+m[8]*p[2]+m[12]*w,m[1]*p[0]+m[5]*p[1]+m[9]*p[2]+m[13]*w,m[2]*p[0]+m[6]*p[1]+m[10]*p[2]+m[14]*w];}
+function compose(p,s=[1,1,1],r=[0,0,0]){return M.mul(M.mul(M.mul(M.mul(M.translate(...p),M.ry(r[1])),M.rx(r[0])),M.rz(r[2])),M.scale(...s));}
+const colors={ground:[.69,.76,.65],grass:[.39,.57,.38],grassLight:[.43,.60,.41],track:[.70,.37,.26],line:[.94,.89,.72],white:[.94,.95,.86],dark:[.15,.24,.20],seat:[.39,.50,.38],wood:[.66,.56,.37],pole:[.43,.51,.45],mint:[.43,.77,.66],orange:[1,.55,.30],skin:[.71,.41,.27],hair:[.16,.13,.11],shirt:[.90,.94,.56],shorts:[.16,.29,.24],shoe:[.91,.96,.82],leaf:[.35,.48,.28]};
+// Every vertex stores position, normal, and color. Static geometry is batched.
+const primitives={};
+function tri(a,b,c,n){return [...a,...n,...b,...n,...c,...n];}
+primitives.box=[];
+for(const [n,u,v]of [[[1,0,0],[0,1,0],[0,0,1]],[[-1,0,0],[0,0,1],[0,1,0]],[[0,1,0],[0,0,1],[1,0,0]],[[0,-1,0],[1,0,0],[0,0,1]],[[0,0,1],[1,0,0],[0,1,0]],[[0,0,-1],[0,1,0],[1,0,0]]]){
+ const p=(a,b)=>n.map((x,i)=>(x+u[i]*a+v[i]*b)/2);primitives.box.push(...tri(p(-1,-1),p(1,-1),p(1,1),n),...tri(p(-1,-1),p(1,1),p(-1,1),n));
+}
+primitives.sphere=[];
+for(let i=0;i<9;i++)for(let j=0;j<12;j++){let p=(i,j)=>{let a=Math.PI*i/9,b=TAU*j/12;return[Math.sin(a)*Math.cos(b),Math.cos(a),Math.sin(a)*Math.sin(b)];};for(const q of [p(i,j),p(i+1,j),p(i+1,j+1),p(i,j),p(i+1,j+1),p(i,j+1)])primitives.sphere.push(...q,...q);}
+primitives.cylinder=[];
+for(let i=0;i<12;i++){const a=TAU*i/12,b=TAU*(i+1)/12,pa=[Math.cos(a),-.5,Math.sin(a)],pb=[Math.cos(b),-.5,Math.sin(b)],qa=[pa[0],.5,pa[2]],qb=[pb[0],.5,pb[2]],na=[pa[0],0,pa[2]],nb=[pb[0],0,pb[2]];primitives.cylinder.push(...pa,...na,...qa,...na,...qb,...nb,...pa,...na,...qb,...nb,...pb,...nb,...tri([0,.5,0],qb,qa,[0,1,0]),...tri([0,-.5,0],pa,pb,[0,-1,0]));}
+class Builder{
+ constructor(){this.data=[];this.parent=M.identity();}
+ mesh(name,p,s,c,r=[0,0,0]){const local=compose(p,s,r),mat=M.mul(this.parent,local),rotation=M.mul(this.parent,compose([0,0,0],[1,1,1],r)),a=primitives[name];for(let i=0;i<a.length;i+=6){let pos=transform(mat,a.slice(i,i+3)),n=norm(transform(rotation,[a[i+3]/s[0],a[i+4]/s[1],a[i+5]/s[2]],0));this.data.push(...pos,...n,...c);}return this;}
+ box(p,s,c,r){return this.mesh('box',p,s,c,r);}sphere(p,s,c){return this.mesh('sphere',p,s,c);}cylinder(p,s,c,r){return this.mesh('cylinder',p,s,c,r);}
+ bone(a,b,r,c){const d=sub(b,a),len=Math.hypot(...d),mid=a.map((v,i)=>(v+b[i])/2),up=norm(d),x=norm(cross(Math.abs(up[1])>.99?[1,0,0]:[0,1,0],up)),z=cross(x,up),mat=new Float32Array([x[0]*r,x[1]*r,x[2]*r,0,up[0]*len,up[1]*len,up[2]*len,0,z[0]*r,z[1]*r,z[2]*r,0,...mid,1]);const a0=primitives.cylinder,world=M.mul(this.parent,mat);for(let i=0;i<a0.length;i+=6){let n=a0.slice(i+3,i+6),wn=norm(transform(this.parent,[x[0]*n[0]+up[0]*n[1]+z[0]*n[2],x[1]*n[0]+up[1]*n[1]+z[1]*n[2],x[2]*n[0]+up[2]*n[1]+z[2]*n[2]],0));this.data.push(...transform(world,a0.slice(i,i+3)),...wn,...c);}return this;}
+ triangle(a,b,c,color,n=[0,1,0]){this.data.push(...a,...n,...color,...b,...n,...color,...c,...n,...color);}
+}
+// Stadium-shaped course with genuinely constant distance speed.
+const halfStraight=3.5,runRadius=3.35;
+function trackAt(phase,r=runRadius){let s=((phase%1)+1)%1*(4*halfStraight+TAU*r),straight=2*halfStraight,arc=Math.PI*r;
+ if(s<straight)return{x:-halfStraight+s,z:r,dx:1,dz:0};s-=straight;
+ if(s<arc){let a=Math.PI/2-s/r;return{x:halfStraight+r*Math.cos(a),z:r*Math.sin(a),dx:Math.sin(a),dz:-Math.cos(a)};}s-=arc;
+ if(s<straight)return{x:halfStraight-s,z:-r,dx:-1,dz:0};s-=straight;let a=-Math.PI/2-s/r;return{x:-halfStraight+r*Math.cos(a),z:r*Math.sin(a),dx:Math.sin(a),dz:-Math.cos(a)};
+}
+function ring(b,inner,outer,c,y=.10){const n=160;for(let i=0;i<n;i++){let a=trackAt(i/n,inner),a1=trackAt((i+1)/n,inner),o=trackAt(i/n,outer),o1=trackAt((i+1)/n,outer);b.triangle([a.x,y,a.z],[o.x,y,o.z],[o1.x,y,o1.z],c);b.triangle([a.x,y,a.z],[o1.x,y,o1.z],[a1.x,y,a1.z],c);}}
+function makeStatic(){const b=new Builder(),C=colors;
+ // A terracotta course surrounding a grass sports field.
+ b.box([0,-.20,0],[26,.38,20],C.ground);ring(b,.01,4.25,C.track,.03);
+ b.box([0,.055,0],[7,.07,5.95],C.grass);b.cylinder([-3.5,.055,0],[2.98,.07,2.98],C.grass);b.cylinder([3.5,.055,0],[2.98,.07,2.98],C.grass);
+ for(let i=0;i<6;i++)b.box([-3.5+(i+.5)*7/6,.095,0],[7/6,.006,5.82],i%2?C.grass:C.grassLight);
+ for(let r=3;r<=4.251;r+=.25)ring(b,r,r+.022,C.line,.107);
+ for(let j=0;j<6;j++)b.box([-.6+j*.12,.116,3.64],[.055,.012,1.25],C.white);
+ // Sports field markings.
+ for(let x of [-2.8,2.8])b.box([x,.108,0],[.025,.012,3.95],C.line);
+ for(let z of [-1.98,1.98])b.box([0,.108,z],[5.6,.012,.025],C.line);
+ b.box([0,.108,0],[.025,.012,3.95],C.line);ringFieldCircle(b,.65,C.line);
+ for(let x of [-2.8,2.8]){b.bone([x,.12,-.6],[x,.9,-.6],.033,C.white);b.bone([x,.9,-.6],[x,.9,.6],.033,C.white);b.bone([x,.9,.6],[x,.12,.6],.033,C.white);}
+ // Low grandstand, repeated seats, and warm concrete stair faces.
+ for(let row=0;row<3;row++){let z=-5.7-row*.5,y=.18+row*.27;b.box([0,y/2,z],[10,y,.58],C.pole);for(let j=0;j<15;j++){let x=(j-7)*.61;b.box([x,y+.12,z],[.46,.13,.35],j%5===0?C.wood:C.seat);b.box([x,y+.32,z-.15],[.46,.34,.075],C.seat);}}
+ for(let x of [-9,9])for(let z of [-6.5,5.6]){b.cylinder([x,2.1,z],[.065,4.2,.065],C.pole);b.box([x,4.16,z],[1.1,.32,.23],C.dark);for(let j=-1;j<=1;j++)b.box([x+j*.32,4.17,z+.125],[.24,.22,.025],C.white);}
+ for(const [x,z,s]of [[-10,-3,1],[-10,1,.8],[10,-2,1.1],[10,2,.9],[-8,-8,.85],[8,-8,1]]){b.cylinder([x,.6*s,z],[.12,1.2*s,.12],C.wood);b.sphere([x,1.55*s,z],[.75*s,.95*s,.75*s],C.leaf);b.sphere([x-.35*s,1.35*s,z+.2*s],[.55*s,.65*s,.55*s],C.grass);}
+ // Trackside propeller, deliberately prominent in the foreground.
+ b.box([0,.22,5.65],[1.75,.40,1.1],C.dark);b.cylinder([0,1.3,5.65],[.12,2.1,.12],C.pole);b.box([0,2.42,5.52],[.36,.34,.58],C.dark);b.cylinder([0,2.42,5.91],[.21,.25,.21],C.wood,[Math.PI/2,0,0]);
+ // Low perimeter rail.
+ for(let x of [-7,-3.5,0,3.5,7])b.cylinder([x,.35,7.4],[.025,.7,.025],C.pole);b.bone([-7,.68,7.4],[7,.68,7.4],.025,C.pole);
+ return b;
+}
+function ringFieldCircle(b,r,c){for(let i=0;i<64;i++){let a=TAU*i/64,d=TAU*(i+1)/64;b.triangle([r*Math.cos(a),.111,r*Math.sin(a)],[(r+.018)*Math.cos(a),.111,(r+.018)*Math.sin(a)],[(r+.018)*Math.cos(d),.111,(r+.018)*Math.sin(d)],c);b.triangle([r*Math.cos(a),.111,r*Math.sin(a)],[(r+.018)*Math.cos(d),.111,(r+.018)*Math.sin(d)],[r*Math.cos(d),.111,r*Math.sin(d)],c);}}
+function makeDynamic(t){const b=new Builder(),C=colors,phase=t*state.frequency,p=trackAt(phase),yaw=Math.atan2(p.dx,p.dz),stride=TAU*phase*6;
+ // Articulated runner: six gait cycles per lap. These are higher harmonics.
+ b.parent=M.mul(M.translate(p.x,.13+Math.abs(Math.sin(stride))*.075,p.z),M.ry(yaw));
+ b.box([0,1.13,.035],[.43,.58,.27],C.shirt,[-.13,0,0]);b.box([0,.83,0],[.40,.23,.28],C.shorts);
+ b.sphere([0,1.68,.10],[.19,.23,.18],C.skin);b.sphere([0,1.81,.08],[.195,.12,.18],C.hair);b.box([0,1.14,.181],[.17,.20,.012],C.dark,[-.13,0,0]);b.box([0,1.15,.19],[.025,.12,.012],C.white);
+ for(let side of [-1,1]){let s=Math.sin(stride+(side===1?Math.PI:0)),a=.85*s,k=.3+1.15*Math.max(0,-s),hip=[side*.13,.83,0],knee=[side*.14,.83-.36*Math.cos(a),.36*Math.sin(a)],foot=[side*.14,knee[1]-.36*Math.cos(a+k),knee[2]+.36*Math.sin(a+k)];
+  b.bone(hip,knee,.095,C.shorts);b.sphere(knee,[.085,.085,.085],C.skin);b.bone(knee,foot,.07,C.skin);b.box([foot[0],foot[1]-.015,foot[2]+.045],[.14,.10,.26],C.shoe);
+  let arm=-a*.8,shoulder=[side*.255,1.36,.05],elbow=[side*.29,1.36-.28*Math.cos(arm),.05+.28*Math.sin(arm)],hand=[side*.29,elbow[1]-.24*Math.cos(arm+1.15),elbow[2]+.24*Math.sin(arm+1.15)];b.bone(shoulder,elbow,.064,C.skin);b.bone(elbow,hand,.055,C.skin);b.sphere(hand,[.063,.07,.06],C.skin);
+ }
+ b.parent=M.mul(M.translate(0,2.42,5.98),M.rz(-TAU*phase));
+ // Two visually distinct blades remove half-turn symmetry.
+ b.box([0,.59,0],[.23,1.16,.08],C.mint,[0,0,-.10]);b.box([0,-.59,0],[.23,1.16,.08],C.orange,[0,0,-.10]);b.box([-.10,1.05,.05],[.25,.17,.035],C.white,[0,0,-.10]);b.sphere([0,0,.04],[.20,.20,.15],C.dark);b.sphere([0,0,.16],[.095,.095,.055],C.white);
+ return b;
+}
+function makeGuides(){const b=new Builder();b.parent=M.translate(0,2.42,5.92);for(let i=0;i<48;i++){let a=TAU*i/48,c=TAU*(i+1)/48,r=1.39;b.bone([r*Math.cos(a),r*Math.sin(a),0],[r*Math.cos(c),r*Math.sin(c),0],.009,colors.pole);}for(let i=0;i<12;i++){let a=TAU*i/12;b.bone([1.4*Math.cos(a),1.4*Math.sin(a),0],[1.47*Math.cos(a),1.47*Math.sin(a),0],.016,colors.white);}return b;}
+
+// Orbit / pan / zoom. The same camera is used for both views.
+const camera={azimuth:.20,elevation:.68,distance:23,target:[0,.4,.5]},views={stadium:[.20,.68,23,[0,.4,.5]],overhead:[0,1.49,25,[0,0,0]],propeller:[.06,.20,6.2,[0,2.2,5.6]]};
+function setView(name){[camera.azimuth,camera.elevation,camera.distance,camera.target]=[...views[name].slice(0,3),views[name][3].slice()];state.view=name;document.querySelectorAll('[data-view]').forEach(b=>{b.classList.toggle('active',b.dataset.view===name);b.setAttribute('aria-pressed',String(b.dataset.view===name));});}
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+const canvas=$('scene');let pointers=new Map(),gesture=null;
+function clearCameraPreset(){state.view='custom';document.querySelectorAll('[data-view]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false');});}
+canvas.addEventListener('contextmenu',e=>e.preventDefault());
+canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,[e.clientX,e.clientY]);gesture=null;canvas.focus({preventScroll:true});});
+canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;const last=pointers.get(e.pointerId),dx=e.clientX-last[0],dy=e.clientY-last[1];pointers.set(e.pointerId,[e.clientX,e.clientY]);clearCameraPreset();
+ if(pointers.size===2){let p=[...pointers.values()],d=Math.hypot(p[0][0]-p[1][0],p[0][1]-p[1][1]);if(gesture)camera.distance=clamp(camera.distance*gesture/d,3,55);gesture=d;}
+ else if(e.shiftKey||e.buttons===2){let k=camera.distance*.0017;camera.target[0]-=dx*k*Math.cos(camera.azimuth);camera.target[2]+=dx*k*Math.sin(camera.azimuth);camera.target[1]=clamp(camera.target[1]+dy*k,-1,5);}
+ else{camera.azimuth-=dx*.007;camera.elevation=clamp(camera.elevation+dy*.006,.10,1.51);}
+});
+for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,e=>{pointers.delete(e.pointerId);gesture=null;});
+canvas.addEventListener('wheel',e=>{e.preventDefault();camera.distance=clamp(camera.distance*Math.exp(clamp(e.deltaY,-200,200)*.0015),3,55);clearCameraPreset();},{passive:false});
+canvas.addEventListener('keydown',e=>{let handled=true;switch(e.key){case'ArrowLeft':camera.azimuth-=.1;break;case'ArrowRight':camera.azimuth+=.1;break;case'ArrowUp':camera.elevation=clamp(camera.elevation+.08,.1,1.51);break;case'ArrowDown':camera.elevation=clamp(camera.elevation-.08,.1,1.51);break;case'+':case'=':camera.distance=clamp(camera.distance*.9,3,55);break;case'-':camera.distance=clamp(camera.distance/ .9,3,55);break;case'Home':setView('stadium');break;case' ':state.playing=!state.playing;updateUI();break;default:handled=false;}if(handled){e.preventDefault();if(e.key!=='Home'&&e.key!==' ')clearCameraPreset();}});
+
+let gl,renderer=null,renderError='';
+const vertexSource=`attribute vec3 aPosition;attribute vec3 aNormal;attribute vec3 aColor;uniform mat4 uVP;uniform mat4 uLightVP;varying vec3 vNormal;varying vec3 vColor;varying vec4 vLight;varying vec3 vPosition;void main(){vNormal=aNormal;vColor=aColor;vPosition=aPosition;vLight=uLightVP*vec4(aPosition,1.0);gl_Position=uVP*vec4(aPosition,1.0);}`;
+const fragmentSource=`precision highp float;varying vec3 vNormal;varying vec3 vColor;varying vec4 vLight;varying vec3 vPosition;uniform sampler2D uShadowMap;uniform bool uShadows;uniform vec3 uEye;
+float depthAt(vec2 uv){vec4 d=texture2D(uShadowMap,uv);return dot(d,vec4(1.0,1.0/255.0,1.0/65025.0,1.0/16581375.0));}
+void main(){vec3 n=normalize(vNormal),l=normalize(vec3(-.55,1.0,.6));float lambert=max(dot(n,l),0.0);vec3 p=vLight.xyz/vLight.w*.5+.5;float shadow=0.0;float bias=max(.0018*(1.0-dot(n,l)),.00065);if(uShadows&&p.x>0.0&&p.x<1.0&&p.y>0.0&&p.y<1.0&&p.z<1.0){for(int x=-1;x<=1;x++){for(int y=-1;y<=1;y++){float d=depthAt(p.xy+vec2(float(x),float(y))/1024.0);shadow+=p.z-bias>d?1.0:0.0;}}shadow/=9.0;}vec3 lit=vColor*(.56+.44*lambert*(1.0-.52*shadow));float fog=clamp((distance(uEye,vPosition)-27.0)/65.0,0.0,.33);gl_FragColor=vec4(mix(lit,vec3(.86,.90,.84),fog),1.0);}`;
+const shadowVS=`attribute vec3 aPosition;uniform mat4 uVP;void main(){gl_Position=uVP*vec4(aPosition,1.0);}`;
+const shadowFS=`precision highp float;vec4 packDepth(float d){vec4 e=fract(d*vec4(1.0,255.0,65025.0,16581375.0));e-=e.yzww*vec4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);return e;}void main(){gl_FragColor=packDepth(gl_FragCoord.z);}`;
+function initializeRenderer(){
+ gl=canvas.getContext('webgl',{antialias:true,alpha:false,powerPreference:'low-power'});if(!gl)throw new Error('WebGL context could not be created.');
+ function program(vs,fs){let p=gl.createProgram();for(let[type,src]of [[gl.VERTEX_SHADER,vs],[gl.FRAGMENT_SHADER,fs]]){let sh=gl.createShader(type);gl.shaderSource(sh,src);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(sh));gl.attachShader(p,sh);}gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p));let q={program:p};for(let a of ['aPosition','aNormal','aColor'])q[a]=gl.getAttribLocation(p,a);for(let u of ['uVP','uLightVP','uShadowMap','uShadows','uEye'])q[u]=gl.getUniformLocation(p,u);return q;}
+ const main=program(vertexSource,fragmentSource),shadow=program(shadowVS,shadowFS);
+ function upload(data,dynamic=false){const mesh={buffer:gl.createBuffer(),count:data.length/9};gl.bindBuffer(gl.ARRAY_BUFFER,mesh.buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),dynamic?gl.DYNAMIC_DRAW:gl.STATIC_DRAW);return mesh;}
+ const sceneMesh=upload(makeStatic().data),dynamicMesh=upload(makeDynamic(0).data,true),guides=upload(makeGuides().data);
+ let shadowTexture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,shadowTexture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1024,1024,0,gl.RGBA,gl.UNSIGNED_BYTE,null);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+ const fb=gl.createFramebuffer();gl.bindFramebuffer(gl.FRAMEBUFFER,fb);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,shadowTexture,0);const rb=gl.createRenderbuffer();gl.bindRenderbuffer(gl.RENDERBUFFER,rb);gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,1024,1024);gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,rb);if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)throw new Error('Shadow framebuffer is incomplete.');gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+ const lightVP=M.mul(M.ortho(-19,19,-17,17,.1,65),M.lookAt([-15,25,16],[0,0,0]));
+ gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);
+ function draw(mesh,p){gl.bindBuffer(gl.ARRAY_BUFFER,mesh.buffer);for(let[name,offset]of [['aPosition',0],['aNormal',12],['aColor',24]]){let a=p[name];if(a>=0){gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,3,gl.FLOAT,false,36,offset);}}gl.drawArrays(gl.TRIANGLES,0,mesh.count);}
+ let staticShadowValid=false;
+ function renderView(t,x,y,w,h,eye,vp){
+  const data=new Float32Array(makeDynamic(t).data);gl.bindBuffer(gl.ARRAY_BUFFER,dynamicMesh.buffer);gl.bufferData(gl.ARRAY_BUFFER,data,gl.DYNAMIC_DRAW);dynamicMesh.count=data.length/9;
+  if(state.shadows){gl.bindFramebuffer(gl.FRAMEBUFFER,fb);gl.viewport(0,0,1024,1024);gl.disable(gl.SCISSOR_TEST);gl.clearColor(1,1,1,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(shadow.program);gl.uniformMatrix4fv(shadow.uVP,false,lightVP);gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(1,2);draw(sceneMesh,shadow);draw(dynamicMesh,shadow);gl.disable(gl.POLYGON_OFFSET_FILL);staticShadowValid=true;}
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(x,y,w,h);gl.enable(gl.SCISSOR_TEST);gl.scissor(x,y,w,h);gl.clearColor(.86,.90,.84,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(main.program);gl.uniformMatrix4fv(main.uVP,false,vp);gl.uniformMatrix4fv(main.uLightVP,false,lightVP);gl.uniform3fv(main.uEye,eye);gl.uniform1i(main.uShadows,state.shadows&&staticShadowValid?1:0);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,shadowTexture);gl.uniform1i(main.uShadowMap,0);draw(sceneMesh,main);if(state.guides)draw(guides,main);draw(dynamicMesh,main);
+ }
+ return {render(){const dpr=Math.min(devicePixelRatio||1,1.6),r=canvas.getBoundingClientRect(),w=Math.round(r.width*dpr),h=Math.round(r.height*dpr),stacked=r.width<600;const wrap=$('sceneWrap');if(wrap.classList.contains('compact')!==stacked){wrap.classList.toggle('compact',stacked);return;}if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}const vw=stacked?w:Math.floor(w/2),vh=stacked?Math.floor(h/2):h,aspect=vw/vh,distance=camera.distance*Math.max(1,1.03/aspect),cp=Math.cos(camera.elevation),eye=[camera.target[0]+distance*Math.sin(camera.azimuth)*cp,camera.target[1]+distance*Math.sin(camera.elevation),camera.target[2]+distance*Math.cos(camera.azimuth)*cp],vp=M.mul(M.perspective(.77,aspect,.1,180),M.lookAt(eye,camera.target));renderView(state.time,0,stacked?Math.floor(h/2):0,vw,vh,eye,vp);renderView(sampleIndex()/state.sampling,stacked?0:vw,0,stacked?w:w-vw,vh,eye,vp);gl.disable(gl.SCISSOR_TEST);},stats:{staticVertices:sceneMesh.count,dynamicVertices:dynamicMesh.count}};
+}
+try{renderer=initializeRenderer();}catch(e){renderError=e.message;$('sceneError').hidden=false;console.error('Motion Lab:',e);}
+canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();renderer=null;$('sceneError').hidden=false;});
+canvas.addEventListener('webglcontextrestored',()=>{try{renderer=initializeRenderer();$('sceneError').hidden=true;}catch(e){renderError=e.message;}});
+
+// The chart plots the fundamental, rather than claiming to reconstruct a full pose.
+const plot=$('chart'),ctx=plot.getContext('2d');
+function drawChart(){
+ if(!ctx)return;const r=plot.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2),w=r.width,h=r.height;if(w<1||h<1)return;if(plot.width!==Math.round(w*dpr)||plot.height!==Math.round(h*dpr)){plot.width=Math.round(w*dpr);plot.height=Math.round(h*dpr);}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+ const l=43,right=w-13,top=18,bottom=h-33,span=4,start=Math.max(0,state.time-span),end=start+span,a=aliasFrequency(state.frequency,state.sampling),X=t=>l+(t-start)/span*(right-l),Y=v=>top+(1-v)*.5*(bottom-top);
+ ctx.font='10px system-ui';ctx.lineWidth=1;ctx.textAlign='right';ctx.textBaseline='middle';
+ for(let v of [-1,0,1]){ctx.strokeStyle='#334039';ctx.beginPath();ctx.moveTo(l,Y(v));ctx.lineTo(right,Y(v));ctx.stroke();ctx.fillStyle='#a9b6ac';ctx.fillText(String(v),l-8,Y(v));}
+ ctx.textAlign='center';const tickCount=w<450?3:5;for(let i=0;i<tickCount;i++){let t=start+span*i/(tickCount-1),x=X(t);ctx.strokeStyle='#29342e';ctx.beginPath();ctx.moveTo(x,top);ctx.lineTo(x,bottom);ctx.stroke();ctx.fillStyle='#a9b6ac';ctx.fillText(t.toFixed(1),x,bottom+12);}
+ ctx.save();ctx.translate(10,(top+bottom)/2);ctx.rotate(-Math.PI/2);ctx.fillStyle='#a9b6ac';ctx.fillText('sin(phase)',0,0);ctx.restore();ctx.fillStyle='#a9b6ac';ctx.fillText('Simulation time (s)',(l+right)/2,h-5);
+ ctx.save();ctx.beginPath();ctx.rect(l-3,top-4,right-l+6,bottom-top+8);ctx.clip();
+ function wave(f,color,dash){ctx.strokeStyle=color;ctx.lineWidth=1.6;ctx.setLineDash(dash);ctx.beginPath();let count=Math.max(240,Math.ceil((right-l)*1.5));for(let i=0;i<=count;i++){let t=start+span*i/count,x=X(t),y=Y(Math.sin(TAU*f*t));if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();ctx.setLineDash([]);}
+ wave(state.frequency,'#8fd4be',[]);wave(a,'#ffb47f',[5,4]);
+ let first=Math.ceil(start*state.sampling-1e-8),last=Math.floor(end*state.sampling+1e-8);for(let i=first;i<=last;i++){let t=i/state.sampling;ctx.beginPath();ctx.fillStyle=t<=state.time+1e-8?'#eff3e9':'#718075';ctx.arc(X(t),Y(Math.sin(TAU*state.frequency*t)),t<=state.time+1e-8?3:2.5,0,TAU);ctx.fill();}
+ let cursor=X(state.time);if(cursor>=l&&cursor<=right){ctx.strokeStyle='#d7f57a99';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cursor,top-3);ctx.lineTo(cursor,bottom+2);ctx.stroke();ctx.fillStyle='#d7f57a';ctx.beginPath();ctx.arc(cursor,Y(Math.sin(TAU*state.frequency*state.time)),3.5,0,TAU);ctx.fill();}ctx.restore();
+}
+let previous=null,lastDraw=-1;
+function frame(timestamp){if(previous===null)previous=timestamp;let dt=Math.min((timestamp-previous)/1000,.1);previous=timestamp;if(state.playing&&!document.hidden)state.time+=dt*state.speed;
+ // Limit expensive rendering to 40 fps. Input, pause, and step still refresh.
+ if(timestamp-lastDraw>=25){lastDraw=timestamp;if(renderer)renderer.render();drawChart();$('time').textContent=state.time.toFixed(2).padStart(5,'0')+' s';$('realStamp').textContent='t = '+state.time.toFixed(2)+' s';$('sampleStamp').textContent='sample #'+sampleIndex()+' · t = '+(sampleIndex()/state.sampling).toFixed(2)+' s';}
+ requestAnimationFrame(frame);
+}
+document.addEventListener('visibilitychange',()=>{previous=null;});
+updateUI();requestAnimationFrame(frame);
+// A small read-only inspection surface also makes offline verification easy.
+window.nyquistLab=Object.freeze({getState:()=>({...state,camera:{...camera,target:camera.target.slice()},alias:aliasFrequency(state.frequency,state.sampling),sampleIndex:sampleIndex(),sampleTime:sampleIndex()/state.sampling,nyquist:state.sampling/2,atBoundary:boundary(),webgl:!!renderer,renderError,renderer:renderer?.stats}),aliasFrequency,trackAt});
+})();
+</script>
+</body>
+</html>

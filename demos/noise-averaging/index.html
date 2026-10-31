@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b111b">
+<title>Noise Averaging Lab · 每平均兩點，少 3 dB</title>
+<style>
+:root{color-scheme:dark;--bg:#0b111b;--panel:#111b28;--line:#263446;--text:#edf3f7;--muted:#9baabd;--raw:#b0a1ff;--avg:#72e5bc;--mono:ui-monospace,SFMono-Regular,Consolas,monospace;--sans:Inter,"Segoe UI","Microsoft JhengHei",sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.6}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,canvas:focus-visible{outline:2px solid var(--avg);outline-offset:4px}button{color:var(--text);background:#172333;border:1px solid #304157;border-radius:7px;padding:7px 12px;transition:background .18s,border-color .18s}button:hover{background:#233248;border-color:#60758f}button[aria-pressed=true]{background:#203d39;border-color:var(--avg);color:var(--avg)}button:disabled{opacity:.4;cursor:default}input[type=range]{width:100%;accent-color:var(--avg);cursor:pointer}input[type=number]{width:72px;background:var(--bg);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:6px 8px;font-family:var(--mono)}button svg{width:15px;height:15px;vertical-align:-2px;fill:none;stroke:currentColor;stroke-width:1.7}.shell{max-width:1680px;margin:auto;padding:24px 38px 20px}.mast{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:16px;gap:16px}.brand{display:flex;align-items:center;gap:11px;font-size:12px;letter-spacing:2px;font-weight:650}.brand-mark{width:28px;height:23px;display:flex;align-items:center;gap:3px}.brand-mark i{display:block;width:3px;background:var(--avg);border-radius:3px}.brand-mark i:nth-child(1){height:7px}.brand-mark i:nth-child(2){height:19px}.brand-mark i:nth-child(3){height:11px}.brand-mark i:nth-child(4){height:23px}.brand-mark i:nth-child(5){height:8px}.mast-note{font:11px var(--mono);color:var(--muted);letter-spacing:1px}.intro{padding:23px 0 25px;display:flex;justify-content:space-between;align-items:center;gap:24px}.eyebrow{font:10px var(--mono);letter-spacing:2px;color:var(--avg);margin-bottom:7px}h1{font-size:clamp(24px,2.45vw,38px);letter-spacing:-1px;line-height:1.3;font-weight:620;margin:0 0 8px}.intro p{margin:0;color:var(--muted);font-size:13px}.intro-note{text-align:right;flex-shrink:0;font-size:12px;color:var(--muted)}.intro-note strong{display:block;font:26px var(--mono);color:var(--avg);letter-spacing:-1px}.workspace{display:grid;grid-template-columns:minmax(0,1fr) 326px;gap:20px;align-items:start}.scene-card{position:relative;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:#0e1825}.scene-top{position:absolute;top:19px;left:22px;right:22px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:2;pointer-events:none}.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:#bdcada}.legend span{display:flex;align-items:center;gap:7px}.dot{width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--raw)}.dot.avg{background:var(--avg);border-radius:2px}.view-controls{display:flex;gap:4px;pointer-events:auto}.view-controls button{padding:5px 8px;font-size:11px;background:#101c2cda}.stage{position:relative;height:clamp(420px,42vw,580px);overflow:hidden}.stage canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}.stage canvas.dragging{cursor:grabbing}.stage svg.fallback{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.scene-label{position:absolute;font:11px var(--mono);pointer-events:none;white-space:nowrap;transform:translate(-50%,0);text-shadow:0 2px 8px #000}.scene-label.raw{color:var(--raw)}.scene-label.avg{color:var(--avg)}.axis-label{position:absolute;top:57px;left:22px;color:#70849d;font:10px var(--mono);pointer-events:none}.stage-help{position:absolute;left:22px;bottom:18px;color:#8194aa;font-size:10px;pointer-events:none}.webgl-badge{position:absolute;right:22px;bottom:18px;color:#71869f;font:9px var(--mono);letter-spacing:1px}.scene-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding:12px 17px;background:#101b29;flex-wrap:wrap}.transport{display:flex;align-items:center;gap:7px}.transport button{font-size:11px;padding:6px 10px}.play-btn{min-width:77px;color:var(--avg)}.speed{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:11px}.speed select{background:#142233;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:4px}.window-count{font:10px var(--mono);color:#9eafc3}.inspector{padding:17px 1px 0}.inspector-title{display:flex;align-items:center;justify-content:space-between;gap:16px}.section-label{font-size:11px;color:var(--muted)}.inspector-title strong{font-size:12px;font-weight:500}.inspector-title span:last-child{font:10px var(--mono);color:var(--muted)}.inspect-content{display:grid;grid-template-columns:minmax(0,1fr) 160px;gap:20px;align-items:center;margin-top:8px}#groupPlot{display:block;width:100%;height:94px}#groupPlot text{font-family:var(--mono);font-size:10px;fill:var(--muted)}.group-answer{border-left:1px solid var(--line);padding-left:21px}.group-answer small{color:var(--muted);font-size:10px}.group-answer strong{display:block;font:24px var(--mono);color:var(--avg);margin:3px 0}.group-answer em{display:block;font-style:normal;color:var(--muted);font-size:10px}.inspector-caption{color:#7e91a7;font-size:10px;margin:8px 0 0}.controls{border:1px solid var(--line);border-radius:15px;background:var(--panel);padding:22px}.control-head{display:flex;justify-content:space-between;align-items:flex-start}.control-head h2{font-size:16px;line-height:1.5;font-weight:550;margin:0 0 3px}.control-head p{color:var(--muted);font-size:11px;margin:0}.n-readout{display:flex;align-items:baseline;gap:5px;white-space:nowrap}.n-readout span{font-size:10px;color:var(--muted)}.n-readout output{font:38px var(--mono);line-height:1.2;color:var(--text)}.slider-row{margin:21px 0 6px}.slider-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;color:var(--muted);font-size:11px}.slider-label input{padding:2px 7px;width:58px;font-size:12px}.range-ends{display:flex;justify-content:space-between;font:9px var(--mono);color:#74899f;margin-top:2px}.presets{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:13px}.presets button{padding:5px 0;font:11px var(--mono)}.result{margin-top:23px;border-top:1px solid var(--line);padding-top:19px}.metric-label{font-size:11px;color:var(--muted)}.big-result{font:42px var(--mono);letter-spacing:-2px;line-height:1.45;color:var(--avg)}.big-result small{font-size:17px;letter-spacing:0;margin-left:6px;color:#a5b7c8}.remaining{color:var(--text);font-size:12px}.remaining span{font-family:var(--mono)}.meter{height:4px;background:#29384a;margin:11px 0 9px;border-radius:3px;overflow:hidden}.meter i{display:block;width:70.71%;height:100%;background:var(--avg);transition:width .35s}.delta-note{color:#91a7b8;font-size:10px;min-height:18px}.measurements{margin-top:18px;background:#0c1622;border-radius:8px;padding:12px 13px}.measure-row{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;gap:10px;padding:3px 0;color:#a8b9c9}.measure-row b{font:13px var(--mono);color:var(--text)}.measure-row.averaged b{color:var(--avg)}.measure-row.raw b{color:var(--raw)}.measure-source{font-size:9px;color:#71859b;margin-top:8px}.formula{margin-top:18px}.equation{font:17px var(--mono);margin:7px 0;color:#dae4ee;letter-spacing:-.4px}.equation sub{font-size:10px}.db-equation{font:10px var(--mono);color:var(--muted);line-height:1.9}.assumption{font-size:10px;color:#8598ac;margin:9px 0 0;line-height:1.8}.advanced{margin-top:19px;padding-top:14px;border-top:1px solid var(--line)}summary{color:#b3c3d3;cursor:pointer;font-size:11px}summary::marker{color:#6b8198}.correlation-controls{padding-top:12px}.rho-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}.rho-label output{font-family:var(--mono);color:var(--text)}.correlation-controls p{font-size:10px;color:#8298ab;margin:7px 0 0}.lesson{border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:30px;margin-top:27px;padding-top:20px}.lesson-item{display:flex;gap:13px}.lesson-num{font:10px var(--mono);color:#567085;padding-top:4px}.lesson-item h3{font-size:12px;font-weight:500;margin:0 0 5px}.lesson-item p{font-size:11px;color:var(--muted);line-height:1.8;margin:0}.lesson-item code{color:#d4e2e9;font:11px var(--mono)}.footer{display:flex;justify-content:space-between;gap:15px;margin-top:23px;color:#60788e;font-size:9px}.footer .offline{display:flex;align-items:center;gap:5px}.footer .offline i{width:4px;height:4px;background:var(--avg);border-radius:50%}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.notice{color:#d8bb83;font-size:11px;max-width:260px}.camera-pad{position:absolute;right:18px;bottom:48px;display:grid;grid-template-columns:repeat(3,27px);gap:3px;z-index:2}.camera-pad button{padding:0;width:27px;height:27px;font:13px var(--mono);background:#111f2fd9;color:#a9b9c8}.camera-pad .empty{visibility:hidden}.camera-pad button:hover{color:var(--avg)}
+@media(min-width:1500px){.workspace{grid-template-columns:minmax(0,1fr) 350px}.controls{padding:25px}.stage{height:600px}}
+@media(max-width:1100px){.shell{padding:20px 24px}.workspace{grid-template-columns:minmax(0,1fr) 300px;gap:15px}.controls{padding:18px}.view-controls button{padding:4px 6px}.scene-top{left:15px;right:15px}.legend{gap:12px;font-size:10px}.intro-note{display:none}.stage-help{left:15px;font-size:9px}.window-count{font-size:9px}.lesson{gap:18px}.lesson-item{gap:8px}.stage{height:480px}}
+@media(max-width:850px){.workspace{grid-template-columns:1fr}.controls{display:grid;grid-template-columns:1fr 1fr;column-gap:26px}.control-group{grid-column:1}.result{grid-column:2;grid-row:1 / span 2;margin-top:0;border-top:0;padding-top:0}.formula{grid-column:1;margin-top:16px}.advanced{grid-column:2;margin-top:12px}.stage{height:480px}.lesson{margin-top:24px}.intro{padding:20px 0}.intro p{font-size:12px}}
+@media(max-width:560px){.shell{padding:16px 16px 20px}.mast{padding-bottom:12px}.brand{font-size:10px;letter-spacing:1.4px}.mast-note{font-size:9px;letter-spacing:0}.intro{padding:21px 0}h1{font-size:26px;letter-spacing:-.7px}.intro p{max-width:320px;font-size:11px}.eyebrow{font-size:9px}.stage{height:390px}.scene-top{top:14px;align-items:flex-start}.legend{display:grid;gap:5px}.view-controls button{font-size:10px;padding:5px}.stage-help{bottom:15px;font-size:9px;max-width:200px}.webgl-badge{right:14px;bottom:15px;font-size:8px}.camera-pad{right:13px;bottom:39px}.scene-toolbar{padding:10px 12px;gap:9px}.transport{gap:5px}.transport button{font-size:10px;padding:7px 8px}.window-count{width:100%;order:3}.speed{font-size:10px;gap:4px}.speed select{font-size:10px}.inspect-content{grid-template-columns:minmax(0,1fr) 110px;gap:8px}.group-answer{padding-left:12px}.group-answer strong{font-size:17px;white-space:nowrap}.inspector-title strong{font-size:11px}.inspector-title span:last-child{font-size:9px}.controls{display:block;padding:20px}.result{margin-top:20px;border-top:1px solid var(--line);padding-top:16px}.formula{margin-top:18px}.advanced{margin-top:16px}.big-result{font-size:42px}.measurements{margin-top:14px}.lesson{grid-template-columns:1fr;gap:15px;padding-top:17px}.lesson-item{gap:15px}.lesson-item p{font-size:11px}.footer{font-size:8px}.scene-label{font-size:9px}.axis-label{font-size:8px;top:66px;left:15px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="mast"><div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span> SIGNAL / NOISE LAB</div><div class="mast-note">EXPERIMENT 01 · AVERAGING</div></header>
+  <section class="intro"><div><div class="eyebrow">A LITTLE LESS RANDOM.</div><h1>平均一次，少多少雜訊？</h1><p>把獨立的雜訊點分組平均，觀察波形與標準差如何改變。</p></div><div class="intro-note">每加倍平均點數<strong>−3.01 dB</strong>獨立、等變異數的隨機誤差</div></section>
+  <main class="workspace">
+    <div class="visual-column">
+      <section class="scene-card" aria-label="三維雜訊平均實驗">
+        <div class="scene-top"><div class="legend"><span><i class="dot"></i>原始雜訊 · xᵢ</span><span><i class="dot avg"></i>分組平均 · x̄</span></div><div class="view-controls" aria-label="相機預設"><button type="button" data-view="perspective" aria-pressed="true">透視</button><button type="button" data-view="top" aria-pressed="false">俯視</button><button type="button" data-view="front" aria-pressed="false">正視</button></div></div>
+        <div class="stage" id="stage">
+          <canvas id="scene" tabindex="0" aria-label="可旋轉的三維波形。拖曳旋轉，Shift 加拖曳平移，滾輪縮放。方向鍵旋轉，Shift 加方向鍵平移，加減鍵縮放，R 重設視角。">您的瀏覽器不支援 Canvas。請使用支援 WebGL 的瀏覽器。</canvas>
+          <div class="scene-label raw" id="rawLabel">INPUT · σ = 1 mV</div><div class="scene-label avg" id="avgLabel">OUTPUT · σ = 0.707 mV</div>
+          <div class="axis-label">x：樣本順序　 y：誤差 / mV　 z：處理階段</div>
+          <div class="stage-help">拖曳旋轉 · Shift 拖曳平移 · 滾輪縮放<br>點選波形，可查看該組平均</div><div class="webgl-badge" id="rendererBadge">WEBGL · LIVE</div>
+          <div class="camera-pad" aria-label="相機微調"><span class="empty"></span><button type="button" data-camera="up" aria-label="向上旋轉相機">↑</button><span class="empty"></span><button type="button" data-camera="left" aria-label="向左旋轉相機">←</button><button type="button" data-camera="reset" aria-label="重設相機">↺</button><button type="button" data-camera="right" aria-label="向右旋轉相機">→</button><button type="button" data-camera="in" aria-label="放大">＋</button><button type="button" data-camera="down" aria-label="向下旋轉相機">↓</button><button type="button" data-camera="out" aria-label="縮小">−</button></div>
+        </div>
+        <div class="scene-toolbar"><div class="transport"><button type="button" id="play" class="play-btn" aria-pressed="true">Ⅱ 暫停</button><button type="button" id="step">下一組 →</button><button type="button" id="regenerate">重新取樣</button></div><div class="speed"><label for="speed">速度</label><select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></div><span class="window-count" id="windowCount"></span></div>
+      </section>
+      <section class="inspector" aria-label="目前分組的數值"><div class="inspector-title"><strong>單組拆解 <span id="groupIndex"></span></strong><span id="sampleRange"></span></div><div class="inspect-content"><svg id="groupPlot" role="img" aria-label="目前分組的各點誤差與平均值"></svg><div class="group-answer"><small id="sumLabel">2 點的算術平均</small><strong id="groupMean"></strong><em id="groupSum"></em></div></div><p class="inspector-caption">直柱是每個輸入值；綠色虛線是這組平均。平均降低整體散佈，並非每一組都一定更靠近零。</p></section>
+    </div>
+    <aside class="controls" aria-label="平均參數與統計結果">
+      <div class="control-group"><div class="control-head"><div><h2>把 N 個點，變成 1 個。</h2><p>調整每組平均的樣本數</p></div><div class="n-readout"><span>N =</span><output id="nValue" for="nSlider nInput">2</output></div></div><div class="slider-row"><div class="slider-label"><label for="nSlider">每組平均點數 N</label><input id="nInput" type="number" min="1" max="64" step="1" value="2" aria-label="每組平均點數，1 到 64"></div><input type="range" id="nSlider" min="1" max="64" step="1" value="2"><div class="range-ends"><span>1 · 不平均</span><span>64 點</span></div></div><div class="presets" aria-label="常用平均點數"><button data-n="1" aria-pressed="false">1</button><button data-n="2" aria-pressed="true">2</button><button data-n="4" aria-pressed="false">4</button><button data-n="8" aria-pressed="false">8</button><button data-n="16" aria-pressed="false">16</button><button data-n="32" aria-pressed="false">32</button><button data-n="64" aria-pressed="false">64</button></div></div>
+      <section class="result" aria-label="統計結果"><div class="metric-label">標準差變化 · 理論值</div><div class="big-result"><span id="dbValue">−3.01</span><small>dB</small></div><div class="remaining">標準差剩下 <span id="percentValue">70.7%</span></div><div class="meter" aria-hidden="true"><i id="sigmaMeter"></i></div><div class="delta-note" id="deltaNote">每加倍 N，標準差再降約 3.01 dB。</div><div class="measurements"><div class="measure-row raw"><span>原始 σ · 量測</span><b id="rawSigma"></b></div><div class="measure-row averaged"><span>平均後 σ · 量測</span><b id="avgSigma"></b></div><div class="measure-row"><span>量測的 dB 變化</span><b id="measuredDb"></b></div><div class="measure-source">高斯雜訊 · 16,384 組 · 樣本標準差 (n−1)<br>有限樣本的量測值會在理論值附近波動。</div></div></section>
+      <div class="formula"><div class="section-label">WHY IT WORKS / 標準差的縮放</div><div class="equation" id="sigmaFormula">σ<sub>平均</sub> = σ<sub>原始</sub> / √N</div><div class="db-equation" id="dbFormula">20 log₁₀(σ平均 / σ原始) = −10 log₁₀ N</div><p class="assumption" id="assumption">前提：各點獨立且變異數相同；此處平均的是零均值隨機誤差。固定偏差不會被平均消除。</p></div>
+      <details class="advanced"><summary>進階實驗：如果雜訊彼此相關？</summary><div class="correlation-controls"><label class="rho-label" for="rho">同組兩點間的相關係數 ρ <output id="rhoValue" for="rho">0.00</output></label><input id="rho" type="range" min="0" max="1" value="0" step="0.05"><p id="rhoNote">ρ = 0：獨立。ρ = 1：同組各點完全相同，平均不再降低標準差。模型只考慮 0 ≤ ρ ≤ 1。</p></div></details>
+    </aside>
+  </main>
+  <section class="lesson" aria-label="原理解說"><div class="lesson-item"><div class="lesson-num">01 /</div><div><h3>平均的是正負誤差</h3><p><code>x̄ = (x₁ + ⋯ + xN) / N</code><br>同組點的橫向位置取中心；點數從 N 個變成 1 個。</p></div></div><div class="lesson-item"><div class="lesson-num">02 /</div><div><h3>變異數 ÷N，標準差 ÷√N</h3><p>獨立雜訊的變異數可以相加。除以 N 做平均後，標準差依 <code>1/√N</code> 下降。</p></div></div><div class="lesson-item"><div class="lesson-num">03 /</div><div><h3>「掉 3 dB」是每加倍平均點數</h3><p>N = 2 → −3.01 dB；N = 4 → −6.02 dB。<br>標準差用 <code>20 log₁₀</code>；變異數／功率用 <code>10 log₁₀</code>，得到相同的 dB 變化。非重疊平均也會降低輸出取樣率。</p></div></div></section>
+  <footer class="footer"><span>NOISE AVERAGING LAB · 合成資料 / 輸入理論 σ = 1 mV</span><span class="offline"><i></i>完全離線 · 無外部相依</span></footer>
+  <div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
+</div>
+<script>
+'use strict';
+/* Standalone WebGL 1.0. No libraries, requests, assets, or build step.
+   Statistical model per independent block b:
+   x[b,i] = sqrt(rho)*c[b] + sqrt(1-rho)*e[b,i], c,e ~ N(0,1).
+   Var(mean) = rho + (1-rho)/N. Unit: mV. */
+(() => {
+const $ = id => document.getElementById(id);
+const canvas=$('scene'), stage=$('stage'), groupSvg=$('groupPlot');
+const RAW=[.64,.55,1], AVG=[.27,.88,.65], FLOOR=[.068,.105,.16];
+const BLOCKS=16384, MAX_N=64, AMP=.60, BASE=1.25, RAW_Z=-2.8, AVG_Z=2.8, HALF=10.7;
+const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+const state={n:2,rho:0,seed:7139,playing:!reduceMotion.matches,speed:1,group:0,progress:0,raw:[],means:[],groups:24,rawSD:1,avgSD:1,ratio:1,viewport:[1,1],dirty:true};
+let independent, common, lastTime=0, frameVP, frameEye, renderer=null;
+const camera={yaw:.26,pitch:.57,distance:23,target:[0,.7,0]};
+let desiredCamera=null;
+function rng(seed){let s=seed>>>0;return()=>{s+=0x6D2B79F5;let t=Math.imul(s^s>>>15,1|s);t^=t+Math.imul(t^t>>>7,61|t);return((t^t>>>14)>>>0)/4294967296;};}
+function gaussianArray(length,random){const a=new Float32Array(length);for(let i=0;i<length;i+=2){const r=Math.sqrt(-2*Math.log(Math.max(1e-12,random()))),p=2*Math.PI*random();a[i]=r*Math.cos(p);if(i+1<length)a[i+1]=r*Math.sin(p);}return a;}
+function sampleNoise(){const random=rng(state.seed);independent=gaussianArray(BLOCKS*MAX_N,random);common=gaussianArray(BLOCKS,random);}
+function sdFromMoments(sum,sq,n){return Math.sqrt(Math.max(0,(sq-sum*sum/n)/(n-1)));}
+function compute(){
+  const n=state.n,a=Math.sqrt(state.rho),b=Math.sqrt(1-state.rho);let sum=0,sq=0,meanSum=0,meanSq=0;
+  state.groups=Math.max(2,Math.min(24,Math.floor(144/n)));state.raw=[];state.means=[];
+  for(let g=0;g<BLOCKS;g++){let total=0;const c=a*common[g];for(let i=0;i<n;i++){const v=c+b*independent[g*MAX_N+i];sum+=v;sq+=v*v;total+=v;if(g<state.groups)state.raw.push(v);}const mean=total/n;meanSum+=mean;meanSq+=mean*mean;if(g<state.groups)state.means.push(mean);}
+  state.rawSD=sdFromMoments(sum,sq,BLOCKS*n);state.avgSD=sdFromMoments(meanSum,meanSq,BLOCKS);state.ratio=Math.sqrt(state.rho+(1-state.rho)/n);state.group=0;state.progress=0;state.dirty=true;
+  updateUI();drawInspector();
+}
+const fmt=(x,p=3)=>x.toFixed(p).replace('-','−');
+function dbLabel(x){return Math.abs(x)<.005?'0.00':fmt(x,2);}
+function updateUI(){
+  const n=state.n,ratio=state.ratio,db=20*Math.log10(ratio);
+  $('nSlider').value=n;$('nInput').value=n;$('nValue').textContent=n;
+  document.querySelectorAll('[data-n]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.n===n)));
+  $('dbValue').textContent=dbLabel(db);$('percentValue').textContent=(ratio*100).toFixed(1)+'%';$('sigmaMeter').style.width=ratio*100+'%';
+  $('rawSigma').textContent=fmt(state.rawSD)+' mV';$('avgSigma').textContent=fmt(state.avgSD)+' mV';$('measuredDb').textContent=dbLabel(20*Math.log10(state.avgSD/state.rawSD))+' dB';
+  $('deltaNote').textContent=n===1?'N = 1 沒有平均；輸入與輸出完全相同。':state.rho===1?'ρ = 1：同組雜訊一起變動，平均不再有效。':state.rho>0?'相關性越高，增加平均點數的效益越有限。':'每加倍 N，標準差再降約 3.01 dB。';
+  $('windowCount').textContent=`3D 視窗：${state.raw.length} 個輸入 → ${state.groups} 個平均值`;
+  $('avgLabel').textContent=`OUTPUT · σ = ${fmt(ratio)} mV`;
+  $('rhoValue').value=state.rho.toFixed(2);
+  $('sigmaFormula').innerHTML=state.rho===0?'σ<sub>平均</sub> = σ<sub>原始</sub> / √N':'σ<sub>平均</sub> / σ<sub>原始</sub> = √[ρ + (1−ρ)/N]';
+  if(state.rho>0)$('sigmaFormula').style.fontSize='13px';else $('sigmaFormula').style.fontSize='17px';
+  $('dbFormula').textContent=state.rho===0?'20 log₁₀(σ平均 / σ原始) = −10 log₁₀ N':'ΔdB = 10 log₁₀[ρ + (1−ρ)/N]';
+  $('assumption').textContent=state.rho===0?'前提：各點獨立且變異數相同；此處平均的是零均值隨機誤差。固定偏差不會被平均消除。':'模型：xᵢ = √ρ·c + √(1−ρ)·eᵢ；c 與各 eᵢ 皆為獨立、標準差 1 mV 的高斯雜訊。c 在同組共用，各組獨立。';
+  $('announcement').textContent=`每組 ${n} 點，相關係數 ${state.rho.toFixed(2)}，理論標準差剩下 ${(ratio*100).toFixed(1)}%，變化 ${dbLabel(db)} dB。`;
+}
+function setN(n){n=Math.max(1,Math.min(MAX_N,Math.round(n)||1));if(n!==state.n){state.n=n;compute();}else{$('nInput').value=n;$('nSlider').value=n;}}
+$('nSlider').addEventListener('input',e=>setN(+e.target.value));$('nInput').addEventListener('change',e=>setN(+e.target.value));
+document.querySelectorAll('[data-n]').forEach(b=>b.addEventListener('click',()=>setN(+b.dataset.n)));
+$('rho').addEventListener('input',e=>{state.rho=+e.target.value;compute();});
+function setPlaying(v){state.playing=v;$('play').textContent=v?'Ⅱ 暫停':'▷ 播放';$('play').setAttribute('aria-pressed',String(v));}
+$('play').addEventListener('click',()=>setPlaying(!state.playing));
+$('step').addEventListener('click',()=>{setPlaying(false);state.group=(state.group+1)%state.groups;state.progress=.48;drawInspector();});
+$('regenerate').addEventListener('click',()=>{state.seed=(state.seed+10007)>>>0;sampleNoise();compute();});
+$('speed').addEventListener('change',e=>state.speed=+e.target.value);
+reduceMotion.addEventListener('change',e=>{if(e.matches)setPlaying(false);});
+function drawInspector(){
+  const n=state.n,g=state.group,values=state.raw.slice(g*n,(g+1)*n),mean=state.means[g],sum=mean*n;
+  $('groupIndex').textContent=` / ${g+1} of ${state.groups}`;$('sampleRange').textContent=`x${g*n+1} – x${(g+1)*n}`;
+  $('sumLabel').textContent=`${n} 點的算術平均`;$('groupMean').textContent=fmt(mean)+' mV';$('groupSum').textContent=`Σx = ${fmt(sum)} mV ÷ ${n}`;
+  const w=Math.max(150,groupSvg.getBoundingClientRect().width),h=94,l=29,r=7,top=13,bottom=71,zero=(top+bottom)/2;
+  const domain=Math.max(1.6,...values.map(Math.abs),Math.abs(mean))*1.13,scale=(bottom-top)/(2*domain),stride=(w-l-r)/n,bw=Math.min(18,stride*.52);
+  let html=`<title>第 ${g+1} 組，各點誤差與平均值，單位 mV</title><desc>輸入值 ${values.map(v=>v.toFixed(3)).join(', ')}。平均 ${mean.toFixed(3)} mV。</desc><text x="1" y="9">mV</text><line x1="${l}" y1="${zero}" x2="${w-r}" y2="${zero}" stroke="#3c5069"/><text x="17" y="${zero+3}">0</text>`;
+  values.forEach((v,i)=>{const y=zero-v*scale,x=l+(i+.5)*stride;html+=`<rect x="${x-bw/2}" y="${Math.min(y,zero)}" width="${bw}" height="${Math.max(1,Math.abs(y-zero))}" rx="1" fill="#b0a1ff" opacity=".8"/>`;if(n<=8)html+=`<text x="${x}" y="${v>=0?Math.max(11,y-5):Math.min(83,y+12)}" text-anchor="middle">${fmt(v,2)}</text>`;if(n<=8||i===0||i===n-1)html+=`<text x="${x}" y="91" text-anchor="middle">${i+1}</text>`;});
+  const my=zero-mean*scale;html+=`<line x1="${l}" y1="${my}" x2="${w-r}" y2="${my}" stroke="#72e5bc" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  groupSvg.setAttribute('viewBox',`0 0 ${w} ${h}`);groupSvg.innerHTML=html;
+}
+// Minimal column-major matrix algebra and orbit camera.
+const vsub=(a,b)=>a.map((x,i)=>x-b[i]),dot=(a,b)=>a.reduce((s,x,i)=>s+x*b[i],0),cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+const unit=a=>{const len=Math.hypot(...a)||1;return a.map(x=>x/len);};
+function mul(a,b){let o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++)for(let k=0;k<4;k++)o[c*4+r]+=a[k*4+r]*b[c*4+k];return o;}
+function lookAt(eye,target){let z=unit(vsub(eye,target)),x=unit(cross([0,1,0],z)),y=cross(z,x);return new Float32Array([x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-dot(x,eye),-dot(y,eye),-dot(z,eye),1]);}
+function perspective(fov,aspect,near,far){let f=1/Math.tan(fov/2);return new Float32Array([f/aspect,0,0,0,0,f,0,0,0,0,(far+near)/(near-far),-1,0,0,2*far*near/(near-far),0]);}
+function ortho(l,r,b,t,n,f){return new Float32Array([2/(r-l),0,0,0,0,2/(t-b),0,0,0,0,-2/(f-n),0,-(r+l)/(r-l),-(t+b)/(t-b),-(f+n)/(f-n),1]);}
+function getCamera(){const cp=Math.cos(camera.pitch);frameEye=[camera.target[0]+camera.distance*Math.sin(camera.yaw)*cp,camera.target[1]+camera.distance*Math.sin(camera.pitch),camera.target[2]+camera.distance*Math.cos(camera.yaw)*cp];frameVP=mul(perspective(.76,state.viewport[0]/state.viewport[1],.1,150),lookAt(frameEye,camera.target));}
+function project(p){if(!frameVP)return[0,0];const m=frameVP,x=p[0],y=p[1],z=p[2],d=m[3]*x+m[7]*y+m[11]*z+m[15];return[((m[0]*x+m[4]*y+m[8]*z+m[12])/d*.5+.5)*state.viewport[0],(1-(m[1]*x+m[5]*y+m[9]*z+m[13])/d)*.5*state.viewport[1],d];}
+function xpos(i){return -HALF+2*HALF*i/Math.max(1,state.raw.length-1);}
+function rawPoint(i){return[xpos(i),BASE+state.raw[i]*AMP,RAW_Z];}
+function meanPoint(g){return[xpos(g*state.n+(state.n-1)/2),BASE+state.means[g]*AMP,AVG_Z];}
+function fitDistance(){return Math.max(20,Math.min(48,29/(state.viewport[0]/state.viewport[1])+5));}
+function chooseView(name){const d=fitDistance();const views={perspective:{yaw:.26,pitch:.57,distance:d,target:[0,.7,0]},top:{yaw:0,pitch:1.47,distance:d,target:[0,0,0]},front:{yaw:0,pitch:.12,distance:d,target:[0,1,0]}};desiredCamera=views[name];document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===name)));}
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>chooseView(b.dataset.view)));
+function manualCamera(){desiredCamera=null;document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed','false'));}
+function cameraAction(action){if(action==='reset'){chooseView('perspective');return;}manualCamera();if(action==='left')camera.yaw-=.12;if(action==='right')camera.yaw+=.12;if(action==='up')camera.pitch=Math.min(1.49,camera.pitch+.1);if(action==='down')camera.pitch=Math.max(.07,camera.pitch-.1);if(action==='in')camera.distance=Math.max(13,camera.distance*.9);if(action==='out')camera.distance=Math.min(65,camera.distance/ .9);}
+document.querySelectorAll('[data-camera]').forEach(b=>b.addEventListener('click',()=>cameraAction(b.dataset.camera)));
+let pointers=new Map(),drag=null,pinchDistance=0;
+canvas.addEventListener('contextmenu',e=>e.preventDefault());
+canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,[e.clientX,e.clientY]);drag={x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,moved:false,pan:e.shiftKey||e.button===2};canvas.classList.add('dragging');if(pointers.size===2){const p=[...pointers.values()];pinchDistance=Math.hypot(p[0][0]-p[1][0],p[0][1]-p[1][1]);}});
+canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;pointers.set(e.pointerId,[e.clientX,e.clientY]);manualCamera();if(pointers.size===2){const p=[...pointers.values()],d=Math.hypot(p[0][0]-p[1][0],p[0][1]-p[1][1]);if(d>0&&pinchDistance>0)camera.distance=Math.max(13,Math.min(65,camera.distance*pinchDistance/d));pinchDistance=d;if(drag)drag.moved=true;return;}if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.moved=drag.moved||Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>4;if(drag.pan||e.shiftKey){const f=camera.distance*.0015;camera.target[0]-=dx*f*Math.cos(camera.yaw);camera.target[2]+=dx*f*Math.sin(camera.yaw);camera.target[1]+=dy*f;}else{camera.yaw-=dx*.006;camera.pitch=Math.max(.07,Math.min(1.49,camera.pitch+dy*.005));}drag.x=e.clientX;drag.y=e.clientY;});
+function releasePointer(e){const isClick=drag&&!drag.moved&&pointers.size===1&&e.type==='pointerup';pointers.delete(e.pointerId);if(isClick){const rect=canvas.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top;let best=80,chosen=-1;for(let g=0;g<state.groups;g++){for(const p of [meanPoint(g),rawPoint(g*state.n+Math.floor(state.n/2))]){const q=project(p),dist=Math.hypot(q[0]-x,q[1]-y);if(dist<best){best=dist;chosen=g;}}}if(chosen>=0){state.group=chosen;state.progress=.5;setPlaying(false);drawInspector();}}drag=null;if(!pointers.size)canvas.classList.remove('dragging');}
+canvas.addEventListener('pointerup',releasePointer);canvas.addEventListener('pointercancel',releasePointer);
+canvas.addEventListener('wheel',e=>{e.preventDefault();manualCamera();camera.distance=Math.max(13,Math.min(65,camera.distance*Math.exp(e.deltaY*.001)));},{passive:false});
+canvas.addEventListener('keydown',e=>{const keys={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down','+':'in','=':'in','-':'out',r:'reset',R:'reset'};if(keys[e.key]){e.preventDefault();if(e.shiftKey&&e.key.startsWith('Arrow')){manualCamera();if(e.key==='ArrowLeft')camera.target[0]-=.5;if(e.key==='ArrowRight')camera.target[0]+=.5;if(e.key==='ArrowUp')camera.target[1]+=.5;if(e.key==='ArrowDown')camera.target[1]-=.5;}else cameraAction(keys[e.key]);}if(e.key===' '){e.preventDefault();setPlaying(!state.playing);}});
+// Batched triangle geometry. Lit tubes, spheres, platforms, and a shadow receiver.
+class Geometry{
+  constructor(){this.data=[];}
+  vertex(p,n,c){this.data.push(...p,...n,...c);}
+  tri(a,b,c,color,normal){const n=normal||unit(cross(vsub(b,a),vsub(c,a)));this.vertex(a,n,color);this.vertex(b,n,color);this.vertex(c,n,color);}
+  quad(a,b,c,d,color,normal){this.tri(a,b,c,color,normal);this.tri(a,c,d,color,normal);}
+  box(center,size,color){let [x,y,z]=center,[a,b,c]=size.map(v=>v/2);const p=[[x-a,y-b,z-c],[x+a,y-b,z-c],[x+a,y+b,z-c],[x-a,y+b,z-c],[x-a,y-b,z+c],[x+a,y-b,z+c],[x+a,y+b,z+c],[x-a,y+b,z+c]];[[4,5,6,7],[1,0,3,2],[0,4,7,3],[5,1,2,6],[3,7,6,2],[0,1,5,4]].forEach(f=>this.quad(...f.map(i=>p[i]),color));}
+  tube(a,b,r,color,sides=6){const axis=unit(vsub(b,a)),ref=Math.abs(axis[1])>.9?[1,0,0]:[0,1,0],u=unit(cross(axis,ref)),v=cross(axis,u);for(let j=0;j<sides;j++){const p=j*2*Math.PI/sides,q=(j+1)*2*Math.PI/sides;const n1=u.map((x,i)=>x*Math.cos(p)+v[i]*Math.sin(p)),n2=u.map((x,i)=>x*Math.cos(q)+v[i]*Math.sin(q));const aa=a.map((x,i)=>x+r*n1[i]),ab=a.map((x,i)=>x+r*n2[i]),ba=b.map((x,i)=>x+r*n1[i]),bb=b.map((x,i)=>x+r*n2[i]);this.vertex(aa,n1,color);this.vertex(ba,n1,color);this.vertex(bb,n2,color);this.vertex(aa,n1,color);this.vertex(bb,n2,color);this.vertex(ab,n2,color);}}
+  sphere(center,r,color,rings=4,sides=7){for(let j=0;j<rings;j++)for(let i=0;i<sides;i++){const points=[];for(const [rr,ss]of [[j,i],[j+1,i],[j+1,i+1],[j,i+1]]){const phi=rr/rings*Math.PI,theta=ss/sides*2*Math.PI;const n=[Math.sin(phi)*Math.cos(theta),Math.cos(phi),Math.sin(phi)*Math.sin(theta)];points.push({p:center.map((x,k)=>x+r*n[k]),n});}for(const k of [0,1,2,0,2,3])this.vertex(points[k].p,points[k].n,color);}}
+}
+function makeStaticGeometry(){
+  const geo=new Geometry();geo.box([0,-1.37,0],[80,.24,70],FLOOR);
+  for(const z of [RAW_Z,AVG_Z]){
+    geo.box([0,-.96,z],[23,.19,3.65],[.095,.145,.215]);
+    for(let x=-10;x<=10;x+=2)geo.box([x,-.855,z],[.012,.006,3.35],[.16,.23,.32]);
+    for(let t=-1.5;t<=1.5;t+=.75)geo.box([0,-.854,z+t],[22,.007,.012],[.15,.22,.30]);
+    geo.tube([-11,BASE,z],[11,BASE,z],.012,[.28,.36,.46],5);
+    // Amplitude ruler: ±2 mV tick marks around the zero-error baseline.
+    geo.tube([-11.25,BASE-1.25,z],[-11.25,BASE+1.25,z],.014,[.24,.33,.45],5);
+    for(let y=-2;y<=2;y++)geo.tube([-11.4,BASE+y*AMP,z],[-11.1,BASE+y*AMP,z],.014,[.3,.4,.52],5);
+  }
+  // A sparse environment grid recedes into the surrounding floor.
+  for(let x=-24;x<=24;x+=4)geo.box([x,-1.241,0],[.014,.006,40],[.085,.13,.19]);
+  for(let z=-20;z<=20;z+=4)geo.box([0,-1.24,z],[48,.006,.014],[.085,.13,.19]);
+  state.raw.forEach((v,i)=>{const p=rawPoint(i);if(i)geo.tube(rawPoint(i-1),p,.038,RAW);geo.sphere(p,state.raw.length>100?.052:.08,RAW,3,6);geo.tube([p[0],BASE,RAW_Z],p,.009,[.32,.29,.49],4);});
+  state.means.forEach((v,g)=>{const p=meanPoint(g);if(g)geo.tube(meanPoint(g-1),p,.048,AVG);geo.sphere(p,.095,AVG,4,7);geo.tube([p[0],BASE,AVG_Z],p,.012,[.16,.42,.35],4);});
+  return geo;
+}
+function makeMovingGeometry(){
+  const geo=new Geometry(),g=state.group,n=state.n,mean=meanPoint(g),first=g*n,last=(g+1)*n-1,begin=xpos(first)-.12,end=xpos(last)+.12;
+  geo.box([(begin+end)/2,-.842,RAW_Z],[Math.max(.12,end-begin),.014,3.25],[.18,.16,.30]);
+  geo.box([mean[0],-.841,AVG_Z],[Math.max(.18,end-begin),.016,3.25],[.09,.27,.23]);
+  const t=(state.progress*.85+.08)%1;
+  for(let i=first;i<=last;i++){
+    const p=rawPoint(i);geo.sphere(p,.10,[.79,.72,1],4,7);
+    const midpoint=[(p[0]+mean[0])*.5,Math.max(p[1],mean[1])+.8,0];
+    const curve=s=>p.map((v,k)=>(1-s)*(1-s)*v+2*s*(1-s)*midpoint[k]+s*s*mean[k]);
+    for(let j=0;j<12;j++)geo.tube(curve(j/12),curve((j+1)/12),.009,[.22,.36,.40],4);
+    geo.sphere(curve(t),n>16?.038:.055,[.60,.91,.80],3,5);
+  }
+  const pulse=state.playing&&!reduceMotion.matches?1+.09*Math.sin(state.progress*Math.PI*2):1;
+  geo.sphere(mean,.14*pulse,[.57,1,.79],5,9);
+  geo.tube([mean[0],-.83,AVG_Z],mean,.018,[.22,.58,.46],5);
+  return geo;
+}
+function createRenderer(){
+  const gl=canvas.getContext('webgl',{antialias:true,alpha:false,powerPreference:'default',preserveDrawingBuffer:false});if(!gl)return null;
+  const vs=`attribute vec3 aPosition;attribute vec3 aNormal;attribute vec3 aColor;uniform mat4 uVP;uniform mat4 uLightVP;varying vec3 vColor;varying vec3 vNormal;varying vec3 vPosition;varying vec4 vShadow;void main(){vColor=aColor;vNormal=aNormal;vPosition=aPosition;vShadow=uLightVP*vec4(aPosition,1.);gl_Position=uVP*vec4(aPosition,1.);}`;
+  const fs=`precision highp float;varying vec3 vColor;varying vec3 vNormal;varying vec3 vPosition;varying vec4 vShadow;uniform vec3 uEye;uniform sampler2D uShadow;uniform float uHasShadow;float unpack(vec4 c){return dot(c,vec4(1.,1./255.,1./65025.,1./16581375.));}void main(){vec3 n=normalize(vNormal),light=normalize(vec3(-.4,.85,.5));float diffuse=max(dot(n,light),0.);vec3 sc=vShadow.xyz/vShadow.w*.5+.5;float shadow=0.;float bias=max(.0028*(1.-diffuse),.0014);if(uHasShadow>.5&&sc.x>0.&&sc.x<1.&&sc.y>0.&&sc.y<1.&&sc.z<1.){for(int x=-1;x<=1;x++){for(int y=-1;y<=1;y++){float depth=unpack(texture2D(uShadow,sc.xy+vec2(float(x),float(y))/1024.));shadow+=sc.z-bias>depth?1.:0.;}}shadow/=9.;}float hemi=.37+.17*max(n.y,0.);vec3 view=normalize(uEye-vPosition),halfV=normalize(light+view);float spec=pow(max(dot(n,halfV),0.),30.)*.15;vec3 color=vColor*(hemi+diffuse*.78*(1.-shadow*.64))+vec3(spec*(1.-shadow*.7));float fog=1.-exp(-pow(length(uEye-vPosition)*.012,2.));color=mix(color,vec3(.055,.09,.14),fog);gl_FragColor=vec4(color,1.);}`;
+  const depthVS=`attribute vec3 aPosition;uniform mat4 uVP;void main(){gl_Position=uVP*vec4(aPosition,1.);}`;
+  const depthFS=`precision highp float;void main(){vec4 c=fract(gl_FragCoord.z*vec4(1.,255.,65025.,16581375.));c-=c.yzww*vec4(1./255.,1./255.,1./255.,0.);gl_FragColor=c;}`;
+  function shader(type,src){let s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;}
+  function program(v,f){const p=gl.createProgram(),sv=shader(gl.VERTEX_SHADER,v),sf=shader(gl.FRAGMENT_SHADER,f);gl.attachShader(p,sv);gl.attachShader(p,sf);gl.linkProgram(p);gl.deleteShader(sv);gl.deleteShader(sf);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));return p;}
+  const lit=program(vs,fs),depth=program(depthVS,depthFS);const locations=p=>({pos:gl.getAttribLocation(p,'aPosition'),normal:gl.getAttribLocation(p,'aNormal'),color:gl.getAttribLocation(p,'aColor'),vp:gl.getUniformLocation(p,'uVP'),light:gl.getUniformLocation(p,'uLightVP'),eye:gl.getUniformLocation(p,'uEye'),shadow:gl.getUniformLocation(p,'uShadow'),hasShadow:gl.getUniformLocation(p,'uHasShadow')});const litLoc=locations(lit),depthLoc=locations(depth);
+  const lightVP=mul(ortho(-19,19,-18,18,1,70),lookAt([-16,30,18],[0,0,0]));
+  const texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1024,1024,0,gl.RGBA,gl.UNSIGNED_BYTE,null);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  const frame=gl.createFramebuffer(),depthBuffer=gl.createRenderbuffer();gl.bindFramebuffer(gl.FRAMEBUFFER,frame);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,texture,0);gl.bindRenderbuffer(gl.RENDERBUFFER,depthBuffer);gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,1024,1024);gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,depthBuffer);const shadows=gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE;gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+  const fixed={buffer:gl.createBuffer(),count:0},moving={buffer:gl.createBuffer(),count:0};
+  function upload(mesh,geo,dynamic){const data=new Float32Array(geo.data);mesh.count=data.length/9;gl.bindBuffer(gl.ARRAY_BUFFER,mesh.buffer);gl.bufferData(gl.ARRAY_BUFFER,data,dynamic?gl.DYNAMIC_DRAW:gl.STATIC_DRAW);}
+  function draw(mesh,loc){gl.bindBuffer(gl.ARRAY_BUFFER,mesh.buffer);gl.enableVertexAttribArray(loc.pos);gl.vertexAttribPointer(loc.pos,3,gl.FLOAT,false,36,0);if(loc.normal>=0){gl.enableVertexAttribArray(loc.normal);gl.vertexAttribPointer(loc.normal,3,gl.FLOAT,false,36,12);}if(loc.color>=0){gl.enableVertexAttribArray(loc.color);gl.vertexAttribPointer(loc.color,3,gl.FLOAT,false,36,24);}gl.drawArrays(gl.TRIANGLES,0,mesh.count);}
+  gl.enable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);
+  return {gl,render(staticChanged){if(staticChanged)upload(fixed,makeStaticGeometry(),false);upload(moving,makeMovingGeometry(),true);
+    if(shadows){gl.bindFramebuffer(gl.FRAMEBUFFER,frame);gl.viewport(0,0,1024,1024);gl.clearColor(1,1,1,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(depth);gl.uniformMatrix4fv(depthLoc.vp,false,lightVP);draw(fixed,depthLoc);draw(moving,depthLoc);gl.bindFramebuffer(gl.FRAMEBUFFER,null);}
+    gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(.055,.09,.14,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(lit);gl.uniformMatrix4fv(litLoc.vp,false,frameVP);gl.uniformMatrix4fv(litLoc.light,false,lightVP);gl.uniform3fv(litLoc.eye,frameEye);gl.uniform1f(litLoc.hasShadow,shadows?1:0);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,texture);gl.uniform1i(litLoc.shadow,0);draw(fixed,litLoc);draw(moving,litLoc);
+  }};
+}
+let fallback=null,renderedKey='';
+function enableFallback(){if(fallback)return;fallback=document.createElementNS('http://www.w3.org/2000/svg','svg');fallback.classList.add('fallback');fallback.setAttribute('role','img');fallback.setAttribute('aria-label','SVG 相容模式：三維投影的原始雜訊與分組平均波形');stage.insertBefore(fallback,$('rawLabel'));$('rendererBadge').textContent='SVG · 相容模式';}
+function renderFallback(){
+  const [w,h]=state.viewport;fallback.setAttribute('viewBox',`0 0 ${w} ${h}`);const pp=p=>project(p).slice(0,2).map(v=>v.toFixed(1)).join(',');
+  let html='<defs><filter id="floorShadow"><feGaussianBlur stdDeviation="4"/></filter></defs>';
+  for(const z of [RAW_Z,AVG_Z]){const corners=[[-11.5,-.9,z-1.8],[11.5,-.9,z-1.8],[11.5,-.9,z+1.8],[-11.5,-.9,z+1.8]];html+=`<polygon points="${corners.map(pp).join(' ')}" fill="#1b293e" stroke="#2b3c53"/>`;for(let x=-10;x<=10;x+=2)html+=`<polyline points="${pp([x,-.89,z-1.7])} ${pp([x,-.89,z+1.7])}" stroke="#2b3c53" fill="none"/>`;html+=`<polyline points="${pp([-11,BASE,z])} ${pp([11,BASE,z])}" stroke="#506178" fill="none"/>`;}
+  for(const [data,point,color]of [[state.raw,rawPoint,'#b0a1ff'],[state.means,meanPoint,'#72e5bc']]){html+=`<polyline points="${data.map((_,i)=>{const p=point(i);return pp([p[0],-.86,p[2]]);}).join(' ')}" stroke="#030b13" stroke-width="7" opacity=".6" filter="url(#floorShadow)" fill="none"/><polyline points="${data.map((_,i)=>pp(point(i))).join(' ')}" stroke="${color}" stroke-width="1.8" fill="none"/>`;data.forEach((_,i)=>{const p=project(point(i));html+=`<circle cx="${p[0]}" cy="${p[1]}" r="2.3" fill="${color}"/>`;});}
+  const g=state.group,end=meanPoint(g),t=state.progress*.85+.08;
+  for(let i=g*state.n;i<(g+1)*state.n;i++){const p=rawPoint(i),mid=[(p[0]+end[0])*.5,Math.max(p[1],end[1])+.8,0],a=project(p),b=project(end),c=project(mid),v=project(p.map((x,k)=>(1-t)*(1-t)*x+2*t*(1-t)*mid[k]+t*t*end[k]));html+=`<path d="M${a[0]},${a[1]} Q${c[0]},${c[1]} ${b[0]},${b[1]}" stroke="#46726d" fill="none" opacity=".7"/><circle cx="${a[0]}" cy="${a[1]}" r="4" fill="#d0c5ff"/><circle cx="${v[0]}" cy="${v[1]}" r="2.5" fill="#a4f2d3"/>`;}
+  const end2=project(end);html+=`<circle cx="${end2[0]}" cy="${end2[1]}" r="5" fill="#a6ffdb"/>`;fallback.innerHTML=html;
+}
+function resize(){const r=stage.getBoundingClientRect(),previousFit=fitDistance();state.viewport=[r.width,r.height];const fitScale=fitDistance()/previousFit;camera.distance=Math.max(13,Math.min(65,camera.distance*fitScale));if(desiredCamera)desiredCamera.distance=Math.max(13,Math.min(65,desiredCamera.distance*fitScale));const dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);renderedKey='';drawInspector();}
+new ResizeObserver(resize).observe(stage);new ResizeObserver(()=>drawInspector()).observe(groupSvg);
+canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();renderer=null;enableFallback();});
+canvas.addEventListener('webglcontextrestored',()=>{try{renderer=createRenderer();if(renderer){fallback?.remove();fallback=null;$('rendererBadge').textContent='WEBGL · LIVE';state.dirty=true;}}catch(e){enableFallback();}});
+const axisTicks=[-2,0,2].map(value=>{const el=document.createElement('div');el.className='scene-label';el.style.color='#8299af';el.style.fontSize='9px';el.setAttribute('aria-hidden','true');el.textContent=value>0?'+'+value:String(value).replace('-','−');stage.appendChild(el);return{value,el};});
+function updateLabels(){for(const [id,z]of [['rawLabel',RAW_Z],['avgLabel',AVG_Z]]){const p=project([0,-1.13,z+1.9]),el=$(id);el.style.left=Math.max(85,Math.min(state.viewport[0]-85,p[0]))+'px';el.style.top=Math.max(83,Math.min(state.viewport[1]-72,p[1]))+'px';el.style.opacity=p[2]>0?'1':'0';}for(const {value,el}of axisTicks){const p=project([-11.65,BASE+value*AMP,RAW_Z]);el.style.left=p[0]+'px';el.style.top=(p[1]-5)+'px';el.style.opacity=p[2]>0&&p[0]>12&&p[0]<state.viewport[0]-12&&p[1]>90&&p[1]<state.viewport[1]-50?'1':'0';}}
+function frame(now){const dt=Math.min((now-lastTime)/1000,.2)||0;lastTime=now;
+  if(desiredCamera){const t=reduceMotion.matches?1:Math.min(1,dt*8);let remaining=0;for(const key of ['yaw','pitch','distance']){const d=desiredCamera[key]-camera[key];camera[key]+=d*t;remaining+=Math.abs(d);}for(let i=0;i<3;i++){const d=desiredCamera.target[i]-camera.target[i];camera.target[i]+=d*t;remaining+=Math.abs(d);}if(remaining<.003)desiredCamera=null;}
+  if(state.playing){state.progress+=dt*state.speed/.95;if(state.progress>=1){state.progress%=1;state.group=(state.group+1)%state.groups;drawInspector();}}
+  const key=[state.n,state.rho,state.seed,state.group,state.progress,state.playing,...state.viewport,camera.yaw,camera.pitch,camera.distance,...camera.target].join('|');
+  if(key!==renderedKey||state.dirty){getCamera();if(renderer){renderer.render(state.dirty);state.dirty=false;}else{renderFallback();state.dirty=false;}updateLabels();renderedKey=key;}requestAnimationFrame(frame);
+}
+sampleNoise();compute();resize();camera.distance=fitDistance();setPlaying(state.playing);
+try{renderer=createRenderer();}catch(error){console.warn('WebGL unavailable; switching to built-in SVG renderer.',error.message);}if(!renderer)enableFallback();requestAnimationFrame(frame);
+// A read-only inspection surface for reproducible checks and teaching consoles.
+window.noiseLab=Object.freeze({snapshot:()=>({n:state.n,rho:state.rho,theoreticalRatio:state.ratio,theoreticalDb:20*Math.log10(state.ratio),rawSigma:state.rawSD,averagedSigma:state.avgSD,measuredDb:20*Math.log10(state.avgSD/state.rawSD),groups:state.groups,visibleSamples:state.raw.length,selectedGroup:state.group,selectedMean:state.means[state.group],selectedSamples:state.raw.slice(state.group*state.n,(state.group+1)*state.n),playing:state.playing,seed:state.seed,renderer:renderer?'WebGL':'SVG',camera:{...camera,target:[...camera.target]}})});
+})();
+</script>
+</body>
+</html>

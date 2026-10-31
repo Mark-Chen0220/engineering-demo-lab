@@ -74,7 +74,7 @@ def build() -> None:
     html = html.replace("async function update()", CLIENT_MODEL + "\nasync function update()")
     target = ROOT / "natural-frequency.html"
     target.write_text(html, encoding="utf-8")
-    (ROOT / "index.html").write_text(INDEX, encoding="utf-8")
+    (ROOT / "control-systems.html").write_text(INDEX, encoding="utf-8")
     (ROOT / ".nojekyll").touch()
     print(f"Built {target}")
 
